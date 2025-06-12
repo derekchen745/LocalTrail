@@ -1,4 +1,4 @@
-package com.example.localtrail.ui.dashboard
+package com.example.localtrail.view.dashboard
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
