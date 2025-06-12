@@ -13,7 +13,12 @@
         android:theme="@style/Theme.LocalTrail"
         tools:targetApi="31" >
         <activity
-            android:name=".MainActivity"
+            android:name=".controller.activities.LoginActivity"
+            android:exported="true"
+            android:theme="@style/Theme.LocalTrail"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".controller.activities.MainActivity"
             android:exported="true"
             android:label="@string/app_name" >
             <intent-filter>
@@ -22,6 +27,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".controller.activities.CreateAccountActivity"
+            android:exported="true"
+            android:theme="@style/Theme.LocalTrail"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>
