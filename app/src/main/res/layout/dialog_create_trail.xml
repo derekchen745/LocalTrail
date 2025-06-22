@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <EditText
+        android:id="@+id/editTrailName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Trail Name" />
+
+    <EditText
+        android:id="@+id/editTrailLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location" />
+
+    <EditText
+        android:id="@+id/editTrailDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Description" />
+</LinearLayout>

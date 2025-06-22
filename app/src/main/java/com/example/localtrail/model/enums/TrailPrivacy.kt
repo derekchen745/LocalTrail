@@ -1,4 +1,4 @@
-package com.example.localtrail.model.enum
+package com.example.localtrail.model.enums
 
 enum class TrailPrivacy {
     PRIVATE,

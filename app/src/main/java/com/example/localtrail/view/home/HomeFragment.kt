@@ -1,40 +1,113 @@
 package com.example.localtrail.view.home
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.localtrail.databinding.FragmentHomeBinding
+import com.example.localtrail.model.Trail
+import com.example.localtrail.model.enums.TrailPrivacy
+import com.example.localtrail.controller.AccountController
+import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeFragment : Fragment() {
 
-private var _binding: FragmentHomeBinding? = null
-  // This property is only valid between onCreateView and
-  // onDestroyView.
-  private val binding get() = _binding!!
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    val homeViewModel =
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
 
-    _binding = FragmentHomeBinding.inflate(inflater, container, false)
-    val root: View = binding.root
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        val root: View = binding.root
 
-    val textView: TextView = binding.textHome
-    homeViewModel.text.observe(viewLifecycleOwner) {
-      textView.text = it
+        val textView: TextView = binding.textHome
+        homeViewModel.text.observe(viewLifecycleOwner) {
+            textView.text = it
+        }
+
+        binding.buttonInitiateTrail.setOnClickListener {
+            showCreateTrailDialog()
+        }
+        return root
     }
-    return root
-  }
 
-override fun onDestroyView() {
+    private fun showCreateTrailDialog() {
+        val dialogView = layoutInflater.inflate(
+            com.example.localtrail.R.layout.dialog_create_trail, null
+        )
+        val nameEdit = dialogView.findViewById<EditText>(com.example.localtrail.R.id.editTrailName)
+        val locationEdit = dialogView.findViewById<EditText>(com.example.localtrail.R.id.editTrailLocation)
+        val descriptionEdit = dialogView.findViewById<EditText>(com.example.localtrail.R.id.editTrailDescription)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Create Trail")
+            .setView(dialogView)
+            .setPositiveButton("Create") { _, _ ->
+                val name = nameEdit.text.toString().trim()
+                val location = locationEdit.text.toString().trim()
+                val description = descriptionEdit.text.toString().trim()
+                val user = AccountController.getCurrentUser()
+
+                Log.d("CreateTrail", "Submit clicked - name: '$name', location: '$location', description: '$description', user: $user")
+
+                if (user != null && name.isNotEmpty() && location.isNotEmpty() && description.isNotEmpty()) {
+                    try {
+                        val trail = Trail(
+                            id = null,
+                            userID = user.uid,
+                            name = name,
+                            location = location,
+                            description = description,
+                            privacy = TrailPrivacy.PUBLIC
+                        )
+                        Log.d("CreateTrail", "Trail object created: $trail")
+                        uploadTrailToFirestore(trail)
+                    } catch (e: Exception) {
+                        Log.e("CreateTrail", "Error creating Trail object", e)
+                        Toast.makeText(requireContext(), "Error creating trail object", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.w("CreateTrail", "Missing fields or user is null")
+                    Toast.makeText(requireContext(), "Please enter all fields", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun uploadTrailToFirestore(trail: Trail) {
+        val db = FirebaseFirestore.getInstance()
+        val trailMap = hashMapOf(
+            "userID" to trail.userID,
+            "name" to trail.name,
+            "location" to trail.location,
+            "description" to trail.description,
+            "privacy" to trail.privacy.name
+        )
+        db.collection("trails")
+            .add(trailMap)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Trail created!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to create trail", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
