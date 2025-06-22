@@ -46,6 +46,7 @@ class CreateAccountActivity : AppCompatActivity() {
                 if (success) {
                     onCreateAccountSuccess()
                 } else {
+                    Log.e("CreateAccount", "Error: ${exception?.message}", exception)
                     showCreateAccountError("Authentication failed.")
                 }
             }
