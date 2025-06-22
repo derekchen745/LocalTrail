@@ -1,5 +1,9 @@
 package com.example.localtrail.controller
 
+import android.app.Activity
+import android.content.Intent
+import com.example.localtrail.controller.activities.LoginActivity
+import com.example.localtrail.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -40,8 +44,13 @@ object AccountController {
             }
     }
 
-    fun getCurrentUser(): FirebaseUser? {
-        return auth.currentUser
+    fun getCurrentUser(): User? {
+        val firebaseUser = auth.currentUser
+        return if (firebaseUser != null) {
+            User(uid = firebaseUser.uid, email = firebaseUser.email ?: "")
+        } else {
+            null
+        }
     }
 
     fun signOut() = auth.signOut()

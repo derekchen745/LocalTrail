@@ -12,23 +12,15 @@ import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseAuthenticatedActivity() {
 
 private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Check login state using Firebase Auth
-        if (AccountController.getCurrentUser() == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-            return
-        }
-
-     binding = ActivityMainBinding.inflate(layoutInflater)
-     setContentView(binding.root)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val navView: BottomNavigationView = binding.navView
 
@@ -39,5 +31,27 @@ private lateinit var binding: ActivityMainBinding
             R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_profile))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        navView.setOnItemSelectedListener { item ->
+            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+            when (item.itemId) {
+                R.id.navigation_profile -> {
+                    navController.popBackStack(R.id.navigation_profile, false)
+                    navController.navigate(R.id.navigation_profile)
+                    true
+                }
+                R.id.navigation_home -> {
+                    navController.popBackStack(R.id.navigation_home, false)
+                    navController.navigate(R.id.navigation_home)
+                    true
+                }
+                R.id.navigation_dashboard -> {
+                    navController.popBackStack(R.id.navigation_dashboard, false)
+                    navController.navigate(R.id.navigation_dashboard)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 }

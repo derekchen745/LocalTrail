@@ -43,4 +43,14 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"/>
 
+    <Button
+        android:id="@+id/buttonMyTrails"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="My Trails"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonLogout"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
