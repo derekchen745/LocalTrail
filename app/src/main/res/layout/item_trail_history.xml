@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/textTrailName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trail Name"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+
+    <TextView
+        android:id="@+id/textTrailLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Location"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
+    <TextView
+        android:id="@+id/textTrailDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+</LinearLayout>
