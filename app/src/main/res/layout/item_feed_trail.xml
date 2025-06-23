@@ -4,49 +4,94 @@
     android:id="@+id/cardTrail"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    android:layout_marginEnd="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:layout_marginTop="12dp"
     android:layout_marginBottom="12dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="6dp">
+    card_view:cardCornerRadius="18dp"
+    card_view:cardElevation="6dp"
+    android:backgroundTint="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/imageTrailAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_account_circle_black_24dp"
+                android:background="@drawable/circle_bg"
+                android:contentDescription="User avatar placeholder" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+                <TextView
+                    android:id="@+id/textTrailUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Derek Chen"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+                <TextView
+                    android:id="@+id/textTrailDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="June 22, 2025"
+                    android:textColor="#888"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imageTrailMenu"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@android:drawable/ic_menu_more"
+                android:contentDescription="Menu" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/imageTrailPhoto"
             android:layout_width="match_parent"
-            android:layout_height="180dp"
+            android:layout_height="160dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_feed_black_24dp"
             android:background="#EEE"
             android:contentDescription="Trail photo placeholder" />
 
-        <TextView
-            android:id="@+id/textTrailName"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:text="Trail Name" />
-
-        <TextView
-            android:id="@+id/textTrailLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Location"
-            android:textColor="#666" />
-
-        <TextView
-            android:id="@+id/textTrailDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description"
-            android:textColor="#444" />
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView
+                android:id="@+id/textTrailName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="Niagara Falls Hike" />
+            <TextView
+                android:id="@+id/textTrailLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textColor="#666"
+                android:textSize="14sp" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

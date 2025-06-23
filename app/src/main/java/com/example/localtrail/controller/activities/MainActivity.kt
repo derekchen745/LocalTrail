@@ -2,6 +2,7 @@ package com.example.localtrail.controller.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -28,6 +29,15 @@ private lateinit var binding: ActivityMainBinding
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         navView.setupWithNavController(navController)
+
+        // Hide toolbar on profile page
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_profile) {
+                binding.toolbar.visibility = View.GONE
+            } else {
+                binding.toolbar.visibility = View.VISIBLE
+            }
+        }
 
         navView.setOnItemSelectedListener { item ->
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
