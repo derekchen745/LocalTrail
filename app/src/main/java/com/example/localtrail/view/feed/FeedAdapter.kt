@@ -21,10 +21,13 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
 
     class FeedViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val card: CardView = view.findViewById(R.id.cardTrail)
-        val image: ImageView = view.findViewById(R.id.imageTrailPhoto)
+        val avatar: ImageView = view.findViewById(R.id.imageTrailAvatar)
         val nameText: TextView = view.findViewById(R.id.textTrailName)
         val locationText: TextView = view.findViewById(R.id.textTrailLocation)
-        val descriptionText: TextView = view.findViewById(R.id.textTrailDescription)
+        val dateText: TextView = view.findViewById(R.id.textTrailDate)
+        val userText: TextView = view.findViewById(R.id.textTrailUser)
+        val menu: ImageView = view.findViewById(R.id.imageTrailMenu)
+        val image: ImageView = view.findViewById(R.id.imageTrailPhoto)
     }
 
     class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -57,7 +60,9 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
                 val trail = trails[position - 1] // -1 for header
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
-                holder.descriptionText.text = trail.description
+                holder.userText.text = "Derek Chen" // Placeholder
+                holder.dateText.text = "June 22, 2025" // Placeholder
+                // Placeholders for avatar and image are already set in XML
             }
             is EmptyViewHolder -> {
                 holder.emptyText.text = holder.itemView.context.getString(R.string.feed_empty_message)

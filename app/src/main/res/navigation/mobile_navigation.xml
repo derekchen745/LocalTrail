@@ -24,18 +24,8 @@
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
-        android:id="@+id/myTrailsFragment"
-        android:name="com.example.localtrail.view.profile.MyTrailsFragment"
-        android:label="My Trails"
-        tools:layout="@layout/fragment_my_trails" />
-
-    <fragment
         android:id="@+id/navigation_profile"
         android:name="com.example.localtrail.view.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile">
-        <action
-            android:id="@+id/action_profile_to_myTrails"
-            app:destination="@id/myTrailsFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_profile" />
 </navigation>
