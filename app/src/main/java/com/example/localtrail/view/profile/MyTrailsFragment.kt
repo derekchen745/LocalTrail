@@ -14,6 +14,7 @@ import com.example.localtrail.R
 import com.example.localtrail.databinding.FragmentMyTrailsBinding
 import com.example.localtrail.model.Trail
 import com.example.localtrail.view.profile.TrailsAdapter
+import com.example.localtrail.controller.TrailsController
 
 class MyTrailsFragment : Fragment() {
     private var _binding: FragmentMyTrailsBinding? = null
@@ -44,17 +45,20 @@ class MyTrailsFragment : Fragment() {
                 }
             }
         )
-        // Example data, replace with real data source
-        val trails = listOf(
-            Trail(1, "Trail 1", "Location 1", "Description 1"),
-            Trail(2, "Trail 2", "Location 2", "Description 2")
-        )
-        val adapter = TrailsAdapter(trails)
-        binding.recyclerViewTrails.adapter = adapter
-        binding.recyclerViewTrails.layoutManager = LinearLayoutManager(requireContext())
 
         binding.buttonBackToProfile.setOnClickListener {
             findNavController().navigate(R.id.navigation_profile)
+        }
+
+        val user = com.example.localtrail.controller.AccountController.getCurrentUser()
+        if (user != null) {
+            Log.d("MyTrailsFragment", "Current userId: ${user.uid}")
+            TrailsController.fetchUserTrails(user.uid) { trails ->
+                Log.d("MyTrailsFragment", "Fetched trails: $trails")
+                val adapter = TrailsAdapter(trails)
+                binding.recyclerViewTrails.adapter = adapter
+                binding.recyclerViewTrails.layoutManager = LinearLayoutManager(requireContext())
+            }
         }
     }
 

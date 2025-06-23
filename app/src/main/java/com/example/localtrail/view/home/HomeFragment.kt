@@ -15,7 +15,7 @@ import com.example.localtrail.databinding.FragmentHomeBinding
 import com.example.localtrail.model.Trail
 import com.example.localtrail.model.enums.TrailPrivacy
 import com.example.localtrail.controller.AccountController
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.localtrail.controller.TrailsController
 
 class HomeFragment : Fragment() {
 
@@ -66,7 +66,7 @@ class HomeFragment : Fragment() {
                 if (user != null && name.isNotEmpty() && location.isNotEmpty() && description.isNotEmpty()) {
                     try {
                         val trail = Trail(
-                            id = null,
+                            id = "",
                             userID = user.uid,
                             name = name,
                             location = location,
@@ -74,7 +74,13 @@ class HomeFragment : Fragment() {
                             privacy = TrailPrivacy.PUBLIC
                         )
                         Log.d("CreateTrail", "Trail object created: $trail")
-                        uploadTrailToFirestore(trail)
+                        TrailsController.saveTrail(trail) { success, exception ->
+                            if (success) {
+                                Toast.makeText(requireContext(), "Trail saved!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to save trail: ${exception?.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     } catch (e: Exception) {
                         Log.e("CreateTrail", "Error creating Trail object", e)
                         Toast.makeText(requireContext(), "Error creating trail object", Toast.LENGTH_SHORT).show()
@@ -86,25 +92,6 @@ class HomeFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    private fun uploadTrailToFirestore(trail: Trail) {
-        val db = FirebaseFirestore.getInstance()
-        val trailMap = hashMapOf(
-            "userID" to trail.userID,
-            "name" to trail.name,
-            "location" to trail.location,
-            "description" to trail.description,
-            "privacy" to trail.privacy.name
-        )
-        db.collection("trails")
-            .add(trailMap)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Trail created!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to create trail", Toast.LENGTH_SHORT).show()
-            }
     }
 
     override fun onDestroyView() {
