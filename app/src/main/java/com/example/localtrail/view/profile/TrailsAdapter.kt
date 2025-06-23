@@ -4,12 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
 import com.example.localtrail.model.Trail
 
 class TrailsAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
     class TrailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val card: CardView = view.findViewById(R.id.cardTrail)
         val nameText: TextView = view.findViewById(R.id.textTrailName)
         val locationText: TextView = view.findViewById(R.id.textTrailLocation)
         val descriptionText: TextView = view.findViewById(R.id.textTrailDescription)

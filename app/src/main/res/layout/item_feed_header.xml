@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textViewFeedHeader"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Social"
+    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+    android:textStyle="normal"
+    android:textColor="@android:color/black"
+    android:layout_marginTop="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginBottom="8dp"
+    android:background="@android:color/white"
+    android:textAlignment="viewStart"
+    android:gravity="start|center_vertical" />
