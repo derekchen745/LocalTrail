@@ -30,6 +30,24 @@ object TrailsController {
             }
     }
 
+    fun fetchOtherUsersTrails(currentUserId: String, onResult: (List<Trail>) -> Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("trails")
+            .whereNotEqualTo("userID", currentUserId)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val trails = querySnapshot.map { doc ->
+                    val trail = doc.toObject(Trail::class.java)
+                    trail.id = doc.id
+                    trail
+                }
+                onResult(trails)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
+
     fun saveTrail(trail: Trail, onResult: (Boolean, Exception?) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val trailsCollection = db.collection("trails")
