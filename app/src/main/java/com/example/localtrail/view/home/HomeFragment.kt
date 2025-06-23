@@ -16,6 +16,9 @@ import com.example.localtrail.model.Trail
 import com.example.localtrail.model.enums.TrailPrivacy
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.TrailsController
+import com.mapbox.maps.Style
+import com.mapbox.maps.MapView
+import com.example.localtrail.R
 
 class HomeFragment : Fragment() {
 
@@ -42,6 +45,24 @@ class HomeFragment : Fragment() {
             showCreateTrailDialog()
         }
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.mapView.getMapboxMap().loadStyleUri(com.mapbox.maps.Style.MAPBOX_STREETS)
+    }
+
+    override fun onDestroyView() {
+        // Properly clean up the MapView
+        binding.mapView.onStop()
+        binding.mapView.onDestroy()
+        _binding = null
+        super.onDestroyView()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
     }
 
     private fun showCreateTrailDialog() {
@@ -92,10 +113,5 @@ class HomeFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

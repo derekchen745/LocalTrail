@@ -32,9 +32,11 @@ private var _binding: FragmentFeedBinding? = null
         val user = AccountController.getCurrentUser()
         if (user != null) {
             TrailsController.fetchOtherUsersTrails(user.uid) { trails ->
-                val adapter = FeedAdapter(trails)
-                binding.recyclerViewFeed.adapter = adapter
-                binding.recyclerViewFeed.layoutManager = LinearLayoutManager(requireContext())
+                _binding?.let { binding ->
+                    val adapter = FeedAdapter(trails)
+                    binding.recyclerViewFeed.adapter = adapter
+                    binding.recyclerViewFeed.layoutManager = LinearLayoutManager(requireContext())
+                }
             }
         }
     }

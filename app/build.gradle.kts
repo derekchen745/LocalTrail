@@ -1,3 +1,11 @@
+import java.util.Properties
+
+val localProperties = rootProject.file("local.properties")
+val mapboxToken: String? = if (localProperties.exists()) {
+    Properties().apply { load(localProperties.inputStream()) }
+        .getProperty("MAPBOX_ACCESS_TOKEN")
+} else null
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,6 +24,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["MAPBOX_ACCESS_TOKEN"] = mapboxToken ?: error("MAPBOX_ACCESS_TOKEN not found in local.properties")
     }
 
     buildTypes {
@@ -56,4 +65,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.mapbox.maps:android:11.3.0")
 }
