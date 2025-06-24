@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -60,9 +61,33 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
                 val trail = trails[position - 1] // -1 for header
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
-                holder.userText.text = "Derek Chen" // Placeholder
+                holder.userText.text = trail.username
                 holder.dateText.text = "June 22, 2025" // Placeholder
-                // Placeholders for avatar and image are already set in XML
+
+                // Setup menu click listener
+                holder.menu.setOnClickListener { view ->
+                    val popup = PopupMenu(view.context, view)
+                    popup.menu.add("Save Trail")
+                    popup.menu.add("View Profile")
+                    popup.menu.add("Add Friend")
+
+                    popup.setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.title) {
+                            "Save Trail" -> {
+                                // TODO: Implement save trail functionality
+                            }
+                            "View Profile" -> {
+                                // TODO: Implement view profile functionality
+                            }
+                            "Add Friend" -> {
+                                // TODO: Implement add friend functionality
+                            }
+                        }
+                        true
+                    }
+
+                    popup.show()
+                }
             }
             is EmptyViewHolder -> {
                 holder.emptyText.text = holder.itemView.context.getString(R.string.feed_empty_message)

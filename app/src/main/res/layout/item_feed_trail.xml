@@ -59,7 +59,7 @@
                 android:id="@+id/imageTrailMenu"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_more"
+                android:src="@drawable/ic_more_vert"
                 android:contentDescription="Menu" />
         </LinearLayout>
 

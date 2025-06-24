@@ -56,7 +56,8 @@ object TrailsController {
             "location" to trail.location,
             "description" to trail.description,
             "userID" to trail.userID, 
-            "privacy" to trail.privacy.name
+            "privacy" to trail.privacy.name,
+            "username" to trail.username 
         )
         if (trail.id.isNotEmpty()) {
             trailsCollection.document(trail.id).set(data)

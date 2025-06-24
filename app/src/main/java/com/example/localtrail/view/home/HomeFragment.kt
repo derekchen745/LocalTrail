@@ -92,7 +92,8 @@ class HomeFragment : Fragment() {
                             name = name,
                             location = location,
                             description = description,
-                            privacy = TrailPrivacy.PUBLIC
+                            privacy = TrailPrivacy.PUBLIC,
+                            username = user.username 
                         )
                         Log.d("CreateTrail", "Trail object created: $trail")
                         TrailsController.saveTrail(trail) { success, exception ->

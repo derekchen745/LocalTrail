@@ -14,8 +14,6 @@ import com.example.localtrail.model.Trail
 class FeedFragment : Fragment() {
 
 private var _binding: FragmentFeedBinding? = null
-  // This property is only valid between onCreateView and
-  // onDestroyView.
   private val binding get() = _binding!!
 
   override fun onCreateView(

@@ -9,6 +9,7 @@ class Trail() {
     var location: String? = null
     var description: String? = null
     var privacy: TrailPrivacy = TrailPrivacy.PUBLIC
+    var username: String = ""
 
     constructor(
         id: String = "",
@@ -16,7 +17,8 @@ class Trail() {
         name: String? = null,
         location: String? = null,
         description: String? = null,
-        privacy: TrailPrivacy = TrailPrivacy.PUBLIC
+        privacy: TrailPrivacy = TrailPrivacy.PUBLIC,
+        username: String = ""
     ) : this() {
         this.id = id
         this.userID = userID
@@ -24,5 +26,6 @@ class Trail() {
         this.location = location
         this.description = description
         this.privacy = privacy
+        this.username = username
     }
 }
