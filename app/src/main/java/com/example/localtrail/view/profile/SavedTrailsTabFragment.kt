@@ -1,5 +1,6 @@
 package com.example.localtrail.view.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -35,14 +36,17 @@ class SavedTrailsTabFragment : Fragment() {
                 showPlaceholder(true)
                 return@getSavedTrails
             }
-            
             showPlaceholder(false)
-            val adapter = TrailsAdapter(trails)
+            val adapter = TrailsAdapter(trails) { trail ->
+                val intent = Intent(requireContext(), com.example.localtrail.view.trail.TrailDetailActivity::class.java)
+                intent.putExtra("trail", trail)
+                startActivity(intent)
+            }
             binding.recyclerViewTrails.adapter = adapter
             binding.recyclerViewTrails.layoutManager = LinearLayoutManager(requireContext())
         }
     }
-    
+
     private fun showPlaceholder(show: Boolean) {
         binding.textSavedTrailsPlaceholder.visibility = if (show) View.VISIBLE else View.GONE
         binding.recyclerViewTrails.visibility = if (show) View.GONE else View.VISIBLE

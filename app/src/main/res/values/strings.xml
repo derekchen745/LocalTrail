@@ -8,4 +8,5 @@
     <string name="toolbar_title">LocalTrail</string>
     <string name="mapbox_access_token">${MAPBOX_ACCESS_TOKEN}</string>
     <string name="default_bio_text">No description yet. Add one to tell others about yourself!</string>
+    <string name="trail_detail_title">Trail Details</string>
 </resources>

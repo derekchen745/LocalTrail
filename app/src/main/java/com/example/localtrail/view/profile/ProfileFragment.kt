@@ -100,6 +100,16 @@ class ProfileFragment : Fragment() {
         })
     }
 
+    fun showTrailDetail(trail: com.example.localtrail.model.Trail) {
+        val fragment = com.example.localtrail.view.trail.TrailDetailFragment()
+        val args = android.os.Bundle().apply { putParcelable("trail", trail) }
+        fragment.arguments = args
+        childFragmentManager.beginTransaction()
+            .replace(binding.frameLayoutTrailsContent.id, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

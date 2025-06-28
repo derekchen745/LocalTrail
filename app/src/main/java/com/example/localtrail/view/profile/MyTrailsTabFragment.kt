@@ -1,5 +1,6 @@
 package com.example.localtrail.view.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,11 @@ class MyTrailsTabFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val user = AccountController.getCurrentUser() ?: return
         TrailsController.fetchUserTrails(user.uid) { trails ->
-            val adapter = com.example.localtrail.view.profile.TrailsAdapter(trails)
+            val adapter = TrailsAdapter(trails) { trail ->
+                val intent = Intent(requireContext(), com.example.localtrail.view.trail.TrailDetailActivity::class.java)
+                intent.putExtra("trail", trail)
+                startActivity(intent)
+            }
             binding.recyclerViewTrails.adapter = adapter
             binding.recyclerViewTrails.layoutManager = LinearLayoutManager(requireContext())
         }
