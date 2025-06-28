@@ -53,7 +53,6 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        // Properly clean up the MapView
         binding.mapView.onStop()
         binding.mapView.onDestroy()
         _binding = null

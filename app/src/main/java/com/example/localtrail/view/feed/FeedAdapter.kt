@@ -6,9 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
+import com.example.localtrail.controller.AccountController
 import com.example.localtrail.model.Trail
 
 class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -58,35 +60,55 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FeedViewHolder -> {
-                val trail = trails[position - 1] // -1 for header
+                val trail = trails[position - 1] 
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
-                holder.dateText.text = "June 22, 2025" // Placeholder
+                holder.dateText.text = "June 22, 2025" 
 
-                // Setup menu click listener
                 holder.menu.setOnClickListener { view ->
-                    val popup = PopupMenu(view.context, view)
-                    popup.menu.add("Save Trail")
-                    popup.menu.add("View Profile")
-                    popup.menu.add("Add Friend")
+                    AccountController.isTrailSavedByUser(trail.id) { isSaved ->
+                        val popup = PopupMenu(view.context, view)
+                        
+                        val saveOption = if (isSaved) "Unsave Trail" else "Save Trail"
+                        popup.menu.add(saveOption)
+                        popup.menu.add("View Profile")
+                        popup.menu.add("Add Friend")
 
-                    popup.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.title) {
-                            "Save Trail" -> {
-                                // TODO: Implement save trail functionality
+                        popup.setOnMenuItemClickListener { menuItem ->
+                            when (menuItem.title) {
+                                "Save Trail" -> {
+                                    AccountController.saveTrailToUser(trail) { success, exception ->
+                                        val message = if (success) {
+                                            "Trail saved to your collection"
+                                        } else {
+                                            "Failed to save trail: ${exception?.message ?: "Unknown error"}"
+                                        }
+                                        Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                "Unsave Trail" -> {
+                                    AccountController.removeTrailFromUser(trail.id) { success, exception ->
+                                        val message = if (success) {
+                                            "Trail removed from your collection"
+                                        } else {
+                                            "Failed to remove trail: ${exception?.message ?: "Unknown error"}"
+                                        }
+                                        Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                                "View Profile" -> {
+                                    // TODO: Implement view profile functionality
+                                }
+                                "Add Friend" -> {
+                                    // TODO: Implement add friend functionality
+                                }
                             }
-                            "View Profile" -> {
-                                // TODO: Implement view profile functionality
-                            }
-                            "Add Friend" -> {
-                                // TODO: Implement add friend functionality
-                            }
+                            true
                         }
-                        true
-                    }
 
-                    popup.show()
+                        popup.show()
+                    }
                 }
             }
             is EmptyViewHolder -> {
@@ -98,6 +120,6 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
 
     override fun getItemCount(): Int = when {
         trails.isEmpty() -> 1
-        else -> trails.size + 1 // +1 for header
+        else -> trails.size + 1 
     }
 }

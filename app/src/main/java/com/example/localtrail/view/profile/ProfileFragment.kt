@@ -6,10 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.activities.LoginActivity
 import com.example.localtrail.databinding.FragmentProfileBinding
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
@@ -28,34 +30,44 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val user = com.example.localtrail.controller.AccountController.getCurrentUser()
-        if (user == null) {
+        
+        if (AccountController.getCurrentUser() == null) {
             val intent = Intent(requireContext(), LoginActivity::class.java)
             startActivity(intent)
             requireActivity().finish()
             return
         }
-        // Set username to empty while loading to avoid flicker
+        
         binding.textViewProfileUsername.text = ""
-        val db = com.google.firebase.firestore.FirebaseFirestore.getInstance()
-        db.collection("users").document(user.uid).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val username = document.getString("username") ?: user.username
-                    binding.textViewProfileUsername.text = username
-                } else {
-                    binding.textViewProfileUsername.text = user.username
-                }
+        binding.textViewProfileBio.text = ""
+        
+        lifecycleScope.launch {
+            val user = AccountController.getUserDetails()
+            
+            if (user == null) {
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                startActivity(intent)
+                requireActivity().finish()
+                return@launch
             }
-            .addOnFailureListener {
-                binding.textViewProfileUsername.text = user.username
+            
+            binding.textViewProfileUsername.text = if (user.username.isNotEmpty()) {
+                user.username
+            } else {
+                user.email
             }
-        // TODO: Replace with real bio
-        binding.textViewProfileBio.text = "4th Year computer Engineering student enjoying hiking and dawe;wek;k ;asdl ka;dk;asldk; askd ;alskd;laskd"
+            
+            binding.textViewProfileBio.text = if (user.description.isNotEmpty()) {
+                user.description
+            } else {
+                getString(R.string.default_bio_text)
+            }
+        }
+        
+            
         // TODO: Replace with real friend count
         binding.textViewProfileFriends.text = "10 Friends"
 
-        // Set up logout icon
         binding.buttonLogoutIcon.setOnClickListener {
             AccountController.signOut()
             val intent = Intent(requireContext(), LoginActivity::class.java)
@@ -63,12 +75,10 @@ class ProfileFragment : Fragment() {
             requireActivity().finish()
         }
 
-        // Set up tabs
         val tabLayout = binding.tabLayoutTrails
         tabLayout.addTab(tabLayout.newTab().setText("My Trails"))
         tabLayout.addTab(tabLayout.newTab().setText("Saved Trails"))
 
-        // Show My Trails by default
         childFragmentManager.beginTransaction()
             .replace(binding.frameLayoutTrailsContent.id, MyTrailsTabFragment())
             .commit()

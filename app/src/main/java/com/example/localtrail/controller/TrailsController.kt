@@ -69,4 +69,56 @@ object TrailsController {
                 .addOnFailureListener { e -> onResult(false, e) }
         }
     }
+
+    /**
+     * Fetches trails by their IDs
+     * @param trailIds List of trail IDs to fetch
+     * @param onResult Callback with the list of fetched trails
+     */
+    fun fetchTrailsByIds(trailIds: List<String>, onResult: (List<Trail>) -> Unit) {
+        if (trailIds.isEmpty()) {
+            onResult(emptyList())
+            return
+        }
+        
+        val db = FirebaseFirestore.getInstance()
+        val trailsCollection = db.collection("trails")
+        
+        val batches = trailIds.chunked(10)
+        val allTrails = mutableListOf<Trail>()
+        var completedBatches = 0
+        
+        for (batch in batches) {
+            trailsCollection.whereIn("__name__", batch)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val trails = querySnapshot.documents.mapNotNull { doc ->
+                        try {
+                            val trail = doc.toObject(Trail::class.java)
+                            trail?.id = doc.id
+                            trail
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                    
+                    synchronized(allTrails) {
+                        allTrails.addAll(trails)
+                        completedBatches++
+                        
+                        if (completedBatches == batches.size) {
+                            onResult(allTrails)
+                        }
+                    }
+                }
+                .addOnFailureListener {
+                    synchronized(allTrails) {
+                        completedBatches++
+                        if (completedBatches == batches.size) {
+                            onResult(allTrails)
+                        }
+                    }
+                }
+        }
+    }
 }

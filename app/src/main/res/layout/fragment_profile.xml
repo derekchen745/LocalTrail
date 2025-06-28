@@ -71,7 +71,7 @@
             android:layout_height="wrap_content"
             android:text="4th Year computer Engineering student enjoying hiking and dawe;wek;k ;asdl ka;dk;asldk; askd ;alskd;laskd"
             android:textSize="15sp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="2dp"
             android:maxLines="3"
             android:ellipsize="end"
@@ -84,7 +84,7 @@
             android:text="10 Friends"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="10dp"
             android:gravity="start"/>
     </LinearLayout>
 
