@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="58dp"
+        android:paddingBottom="8dp">
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back_24"
+            android:contentDescription="Back" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Friends"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center" />
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" /> <!-- Spacer for symmetry -->
+    </LinearLayout>
+
+    <!-- Buttons Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonAddFriends"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Add Friends"
+            android:textSize="18sp"
+            android:textColor="#222"
+            android:backgroundTint="@android:color/white"
+            app:icon="@drawable/ic_add_gray_32"
+            app:iconGravity="top"
+            app:iconTint="#888888"
+            app:iconPadding="8dp"
+            android:layout_marginEnd="8dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFriendRequests"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Friend Requests"
+            android:textSize="18sp"
+            android:textColor="#222"
+            android:backgroundTint="@android:color/white"
+            app:icon="@drawable/ic_star_gray_32"
+            app:iconGravity="top"
+            app:iconTint="#888888"
+            app:iconPadding="8dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Friends List -->
+    <ListView
+        android:id="@+id/listViewFriends"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"
+        android:padding="8dp" />
+
+</LinearLayout>

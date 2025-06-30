@@ -271,4 +271,18 @@ object AccountController {
                 onResult(emptyList(), exception)
             }
     }
+    
+    /**
+     * Updates the user's description in Firestore
+     */
+    suspend fun updateUserDescription(newDescription: String) = withContext(Dispatchers.IO) {
+        val firebaseUser = auth.currentUser ?: return@withContext
+        try {
+            db.collection("users").document(firebaseUser.uid)
+                .update("description", newDescription)
+                .await()
+        } catch (e: Exception) {
+            // Optionally log or handle error
+        }
+    }
 }

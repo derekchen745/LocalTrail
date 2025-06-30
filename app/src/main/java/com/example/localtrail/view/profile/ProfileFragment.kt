@@ -39,7 +39,7 @@ class ProfileFragment : Fragment() {
         }
         
         binding.textViewProfileUsername.text = ""
-        binding.textViewProfileBio.text = ""
+        binding.textViewProfileBio.setText("")
         
         lifecycleScope.launch {
             val user = AccountController.getUserDetails()
@@ -56,15 +56,15 @@ class ProfileFragment : Fragment() {
             } else {
                 user.email
             }
-            
-            binding.textViewProfileBio.text = if (user.description.isNotEmpty()) {
-                user.description
+            // Only show default text visually, not in the EditText value
+            if (user.description.isNotEmpty()) {
+                binding.textViewProfileBio.setText(user.description)
             } else {
-                getString(R.string.default_bio_text)
+                binding.textViewProfileBio.setText("")
+                binding.textViewProfileBio.hint = getString(R.string.default_bio_text)
             }
         }
         
-            
         // TODO: Replace with real friend count
         binding.textViewProfileFriends.text = "10 Friends"
 
@@ -98,6 +98,37 @@ class ProfileFragment : Fragment() {
             override fun onTabUnselected(tab: com.google.android.material.tabs.TabLayout.Tab) {}
             override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab) {}
         })
+        
+        val descriptionEditText = binding.textViewProfileBio
+        descriptionEditText.isFocusable = false
+        descriptionEditText.isClickable = true
+        descriptionEditText.setOnClickListener {
+            descriptionEditText.isFocusableInTouchMode = true
+            descriptionEditText.isFocusable = true
+            descriptionEditText.isCursorVisible = true
+            descriptionEditText.requestFocus()
+            descriptionEditText.setSelection(descriptionEditText.text.length)
+        }
+        // In the focus change listener, only save if not blank and not default
+        descriptionEditText.setOnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) {
+                descriptionEditText.isCursorVisible = false
+                descriptionEditText.isFocusable = false
+                descriptionEditText.isFocusableInTouchMode = false
+                val newDescription = descriptionEditText.text.toString().trim()
+                lifecycleScope.launch {
+                    val user = AccountController.getUserDetails()
+                    if (user != null && newDescription != user.description && newDescription.isNotBlank()) {
+                        AccountController.updateUserDescription(newDescription)
+                    }
+                }
+            }
+        }
+        
+        binding.textViewProfileFriends.setOnClickListener {
+            val intent = Intent(requireContext(), FriendsActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     fun showTrailDetail(trail: com.example.localtrail.model.Trail) {
