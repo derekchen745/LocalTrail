@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.activities.LoginActivity
+import com.example.localtrail.controller.activities.FriendsActivity
 import com.example.localtrail.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
 

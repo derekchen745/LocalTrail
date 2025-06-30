@@ -1,0 +1,5 @@
+<resources>
+    <style name="ThemeOverlay.Material3.Surface" parent="Theme.Material3.DayNight">
+        <!-- Customize your theme here -->
+    </style>
+</resources>
