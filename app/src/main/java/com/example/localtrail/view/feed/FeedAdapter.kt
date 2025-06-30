@@ -10,10 +10,13 @@ import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
-import com.example.localtrail.controller.AccountController
+import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
 
-class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FeedAdapter(
+    private val trails: List<Trail>,
+    private val onMenuAction: ((Trail, Int) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TYPE_HEADER = 0
         private const val TYPE_TRAIL = 1
@@ -60,25 +63,24 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FeedViewHolder -> {
-                val trail = trails[position - 1] 
+                val trail = trails[position - 1]
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
-                holder.dateText.text = "June 22, 2025" 
+                holder.dateText.text = "June 22, 2025"
 
                 holder.menu.setOnClickListener { view ->
-                    AccountController.isTrailSavedByUser(trail.id) { isSaved ->
+                    TrailsController.isTrailSavedByUser(trail.id) { isSaved ->
                         val popup = PopupMenu(view.context, view)
-                        
                         val saveOption = if (isSaved) "Unsave Trail" else "Save Trail"
                         popup.menu.add(saveOption)
                         popup.menu.add("View Profile")
-                        popup.menu.add("Add Friend")
+                        popup.menu.add(view.context.getString(R.string.menu_add_friend)).setIcon(R.drawable.ic_add_gray_32)
 
                         popup.setOnMenuItemClickListener { menuItem ->
                             when (menuItem.title) {
                                 "Save Trail" -> {
-                                    AccountController.saveTrailToUser(trail) { success, exception ->
+                                    TrailsController.saveTrailToUser(trail) { success, exception ->
                                         val message = if (success) {
                                             "Trail saved to your collection"
                                         } else {
@@ -88,7 +90,7 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
                                     }
                                 }
                                 "Unsave Trail" -> {
-                                    AccountController.removeTrailFromUser(trail.id) { success, exception ->
+                                    TrailsController.removeTrailFromUser(trail.id) { success, exception ->
                                         val message = if (success) {
                                             "Trail removed from your collection"
                                         } else {
@@ -100,13 +102,12 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
                                 "View Profile" -> {
                                     // TODO: Implement view profile functionality
                                 }
-                                "Add Friend" -> {
-                                    // TODO: Implement add friend functionality
+                                view.context.getString(R.string.menu_add_friend) -> {
+                                    onMenuAction?.invoke(trail, R.id.menu_add_friend)
                                 }
                             }
                             true
                         }
-
                         popup.show()
                     }
                 }
@@ -120,6 +121,6 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
 
     override fun getItemCount(): Int = when {
         trails.isEmpty() -> 1
-        else -> trails.size + 1 
+        else -> trails.size + 1
     }
 }

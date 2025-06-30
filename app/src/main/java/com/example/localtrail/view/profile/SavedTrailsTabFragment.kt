@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.localtrail.controller.AccountController
+import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.databinding.IncludeSavedTrailsBinding
 
 class SavedTrailsTabFragment : Fragment() {
@@ -31,7 +32,7 @@ class SavedTrailsTabFragment : Fragment() {
             return
         }
 
-        AccountController.getSavedTrails { trails, error ->
+        TrailsController.getSavedTrails { trails, error ->
             if (error != null || trails.isEmpty()) {
                 showPlaceholder(true)
                 return@getSavedTrails
