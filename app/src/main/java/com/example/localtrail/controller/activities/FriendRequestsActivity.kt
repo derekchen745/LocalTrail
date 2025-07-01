@@ -38,12 +38,12 @@ class FriendRequestsActivity : AppCompatActivity() {
 
             val validRequests = requests?.toMutableList() ?: mutableListOf()
 
-            adapter = FriendRequestsAdapter(validRequests) { userId, action ->
+            adapter = FriendRequestsAdapter(validRequests) { friendRequest, action ->
                 when (action) {
                     FriendRequestsAdapter.Action.ACCEPT -> {
-                        FriendsController.acceptFriendRequest(userId) { success, _ ->
+                        FriendsController.acceptFriendRequest(friendRequest.userId) { success, _ ->
                             if (success) {
-                                adapter.removeRequest(userId)
+                                adapter.removeRequest(friendRequest)
                                 Toast.makeText(this, "Friend request accepted", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(this, "Failed to accept friend request", Toast.LENGTH_SHORT).show()
@@ -51,9 +51,9 @@ class FriendRequestsActivity : AppCompatActivity() {
                         }
                     }
                     FriendRequestsAdapter.Action.DENY -> {
-                        FriendsController.denyFriendRequest(userId) { success, _ ->
+                        FriendsController.denyFriendRequest(friendRequest.userId) { success, _ ->
                             if (success) {
-                                adapter.removeRequest(userId)
+                                adapter.removeRequest(friendRequest)
                                 Toast.makeText(this, "Friend request denied", Toast.LENGTH_SHORT).show()
                             } else {
                                 Toast.makeText(this, "Failed to deny friend request", Toast.LENGTH_SHORT).show()

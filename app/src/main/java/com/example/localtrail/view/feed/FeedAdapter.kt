@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
 import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
+import com.example.localtrail.controller.FriendsController
 
 class FeedAdapter(
     private val trails: List<Trail>,
@@ -71,44 +72,54 @@ class FeedAdapter(
 
                 holder.menu.setOnClickListener { view ->
                     TrailsController.isTrailSavedByUser(trail.id) { isSaved ->
-                        val popup = PopupMenu(view.context, view)
-                        val saveOption = if (isSaved) "Unsave Trail" else "Save Trail"
-                        popup.menu.add(saveOption)
-                        popup.menu.add("View Profile")
-                        popup.menu.add(view.context.getString(R.string.menu_add_friend)).setIcon(R.drawable.ic_add_gray_32)
-
-                        popup.setOnMenuItemClickListener { menuItem ->
-                            when (menuItem.title) {
-                                "Save Trail" -> {
-                                    TrailsController.saveTrailToUser(trail) { success, exception ->
-                                        val message = if (success) {
-                                            "Trail saved to your collection"
-                                        } else {
-                                            "Failed to save trail: ${exception?.message ?: "Unknown error"}"
-                                        }
-                                        Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                "Unsave Trail" -> {
-                                    TrailsController.removeTrailFromUser(trail.id) { success, exception ->
-                                        val message = if (success) {
-                                            "Trail removed from your collection"
-                                        } else {
-                                            "Failed to remove trail: ${exception?.message ?: "Unknown error"}"
-                                        }
-                                        Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                "View Profile" -> {
-                                    // TODO: Implement view profile functionality
-                                }
-                                view.context.getString(R.string.menu_add_friend) -> {
-                                    onMenuAction?.invoke(trail, R.id.menu_add_friend)
-                                }
+                        FriendsController.isFriend(trail.userID) { isFriend, exception ->
+                            if (exception != null) {
+                                // Handle error
+                                return@isFriend
                             }
-                            true
+
+                            val popup = PopupMenu(view.context, view)
+                            val saveOption = if (isSaved) "Unsave Trail" else "Save Trail"
+                            popup.menu.add(saveOption)
+                            popup.menu.add("View Profile")
+
+                            if (!isFriend) {
+                                popup.menu.add(view.context.getString(R.string.menu_add_friend)).setIcon(R.drawable.ic_add_gray_32)
+                            }
+
+                            popup.setOnMenuItemClickListener { menuItem ->
+                                when (menuItem.title) {
+                                    "Save Trail" -> {
+                                        TrailsController.saveTrailToUser(trail) { success, exception ->
+                                            val message = if (success) {
+                                                "Trail saved to your collection"
+                                            } else {
+                                                "Failed to save trail: ${exception?.message ?: "Unknown error"}"
+                                            }
+                                            Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    "Unsave Trail" -> {
+                                        TrailsController.removeTrailFromUser(trail.id) { success, exception ->
+                                            val message = if (success) {
+                                                "Trail removed from your collection"
+                                            } else {
+                                                "Failed to remove trail: ${exception?.message ?: "Unknown error"}"
+                                            }
+                                            Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    "View Profile" -> {
+                                        // TODO: Implement view profile functionality
+                                    }
+                                    view.context.getString(R.string.menu_add_friend) -> {
+                                        onMenuAction?.invoke(trail, R.id.menu_add_friend)
+                                    }
+                                }
+                                true
+                            }
+                            popup.show()
                         }
-                        popup.show()
                     }
                 }
             }

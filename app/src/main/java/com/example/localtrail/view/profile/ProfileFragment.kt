@@ -11,6 +11,7 @@ import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.activities.LoginActivity
 import com.example.localtrail.controller.activities.FriendsActivity
+import com.example.localtrail.controller.FriendsController
 import com.example.localtrail.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
 
@@ -66,8 +67,13 @@ class ProfileFragment : Fragment() {
             }
         }
         
-        // TODO: Replace with real friend count
-        binding.textViewProfileFriends.text = "10 Friends"
+        FriendsController.getNumberOfFriends { count, exception ->
+            if (exception != null) {
+                binding.textViewProfileFriends.text = "Error loading friends"
+                return@getNumberOfFriends
+            }
+            binding.textViewProfileFriends.text = "$count Friends"
+        }
 
         binding.buttonLogoutIcon.setOnClickListener {
             AccountController.signOut()

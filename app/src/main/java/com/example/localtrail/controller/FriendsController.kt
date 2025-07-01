@@ -1,7 +1,10 @@
 package com.example.localtrail.controller
 
+import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.localtrail.model.FriendRequest
+import com.example.localtrail.model.Friend
 
 object FriendsController {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -103,19 +106,38 @@ object FriendsController {
      * @param onResult Callback with (friends: List<String>?, exception: Exception?) containing the list of friend UIDs or an error.
      * @return None directly. The result is provided via the onResult callback.
      */
-    fun getFriends(onResult: (List<String>?, Exception?) -> Unit) {
+    fun getFriends(onResult: (List<Friend>?, Exception?) -> Unit) {
         val currentUser = auth.currentUser ?: return onResult(null, Exception("User not logged in"))
         val userRef = db.collection("users").document(currentUser.uid)
-        userRef.get()
-            .addOnSuccessListener { document ->
-                val friends = try {
-                    document.get("friends") as? List<String> ?: listOf()
-                } catch (e: Exception) {
-                    listOf<String>()
-                }
-                onResult(friends, null)
+
+        userRef.get().addOnSuccessListener { document ->
+            val friendIds = try {
+                document.get("friends") as? List<String> ?: listOf()
+            } catch (e: Exception) {
+                listOf<String>()
             }
-            .addOnFailureListener { e -> onResult(null, e) }
+
+            if (friendIds.isEmpty()) {
+                onResult(emptyList(), null)
+                return@addOnSuccessListener
+            }
+
+            val friends = mutableListOf<Friend>()
+            val tasks = friendIds.map { userId ->
+                db.collection("users").document(userId).get().continueWith { task ->
+                    val username = task.result?.getString("username") ?: "Unknown"
+                    friends.add(Friend(userId, username))
+                }
+            }
+
+            Tasks.whenAll(tasks).addOnSuccessListener {
+                onResult(friends, null)
+            }.addOnFailureListener { e ->
+                onResult(null, e)
+            }
+        }.addOnFailureListener { e ->
+            onResult(null, e)
+        }
     }
 
     /**
@@ -123,19 +145,38 @@ object FriendsController {
      * @param onResult Callback with (requests: List<String>?, exception: Exception?) containing the list of friend request UIDs or an error.
      * @return None directly. The result is provided via the onResult callback.
      */
-    fun getFriendRequests(onResult: (List<String>?, Exception?) -> Unit) {
+    fun getFriendRequests(onResult: (List<FriendRequest>?, Exception?) -> Unit) {
         val currentUser = auth.currentUser ?: return onResult(null, Exception("User not logged in"))
         val userRef = db.collection("users").document(currentUser.uid)
-        userRef.get()
-            .addOnSuccessListener { document ->
-                val requests = try {
-                    document.get("friendRequests") as? List<String> ?: listOf()
-                } catch (e: Exception) {
-                    listOf<String>()
-                }
-                onResult(requests, null)
+
+        userRef.get().addOnSuccessListener { document ->
+            val requests = try {
+                document.get("friendRequests") as? List<String> ?: listOf()
+            } catch (e: Exception) {
+                listOf<String>()
             }
-            .addOnFailureListener { e -> onResult(null, e) }
+
+            if (requests.isEmpty()) {
+                onResult(emptyList(), null)
+                return@addOnSuccessListener
+            }
+
+            val friendRequests = mutableListOf<FriendRequest>()
+            val tasks = requests.map { userId ->
+                db.collection("users").document(userId).get().continueWith { task ->
+                    val username = task.result?.getString("username") ?: "Unknown"
+                    friendRequests.add(FriendRequest(userId, username))
+                }
+            }
+
+            Tasks.whenAll(tasks).addOnSuccessListener {
+                onResult(friendRequests, null)
+            }.addOnFailureListener { e ->
+                onResult(null, e)
+            }
+        }.addOnFailureListener { e ->
+            onResult(null, e)
+        }
     }
 
     /**
@@ -157,5 +198,26 @@ object FriendsController {
                 onResult(friends.contains(userId), null)
             }
             .addOnFailureListener { e -> onResult(false, e) }
+    }
+
+    /**
+     * Retrieves the number of friends for the current user from Firestore.
+     * @param onResult Callback with (count: Int?, exception: Exception?) containing the number of friends or an error.
+     * @return None directly. The result is provided via the onResult callback.
+     */
+    fun getNumberOfFriends(onResult: (Int?, Exception?) -> Unit) {
+        val currentUser = auth.currentUser ?: return onResult(null, Exception("User not logged in"))
+        val userRef = db.collection("users").document(currentUser.uid)
+
+        userRef.get().addOnSuccessListener { document ->
+            val friends = try {
+                document.get("friends") as? List<String> ?: listOf()
+            } catch (e: Exception) {
+                listOf<String>()
+            }
+            onResult(friends.size, null)
+        }.addOnFailureListener { e ->
+            onResult(null, e)
+        }
     }
 }

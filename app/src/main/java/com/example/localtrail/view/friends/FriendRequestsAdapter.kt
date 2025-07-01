@@ -7,10 +7,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
+import com.example.localtrail.model.FriendRequest
 
 class FriendRequestsAdapter(
-    private val requests: MutableList<String>,
-    private val onAction: (String, Action) -> Unit
+    private val requests: MutableList<FriendRequest>,
+    private val onAction: (FriendRequest, Action) -> Unit
 ) : RecyclerView.Adapter<FriendRequestsAdapter.ViewHolder>() {
 
     enum class Action {
@@ -29,28 +30,28 @@ class FriendRequestsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val userId = requests[position]
-        holder.usernameText.text = userId
+        val friendRequest = requests[position]
+        holder.usernameText.text = friendRequest.username
 
         holder.acceptButton.setOnClickListener {
-            onAction(userId, Action.ACCEPT)
+            onAction(friendRequest, Action.ACCEPT)
         }
 
         holder.denyButton.setOnClickListener {
-            onAction(userId, Action.DENY)
+            onAction(friendRequest, Action.DENY)
         }
     }
 
     override fun getItemCount(): Int = requests.size
 
-    fun updateRequests(newRequests: List<String>) {
+    fun updateRequests(newRequests: List<FriendRequest>) {
         requests.clear()
         requests.addAll(newRequests)
         notifyDataSetChanged()
     }
 
-    fun removeRequest(userId: String) {
-        val index = requests.indexOf(userId)
+    fun removeRequest(friendRequest: FriendRequest) {
+        val index = requests.indexOf(friendRequest)
         if (index != -1) {
             requests.removeAt(index)
             notifyItemRemoved(index)
