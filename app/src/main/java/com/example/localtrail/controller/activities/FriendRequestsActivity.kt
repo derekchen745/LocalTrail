@@ -23,9 +23,8 @@ class FriendRequestsActivity : AppCompatActivity() {
         binding.title.text = "Friend Requests"
 
         binding.backButton.setOnClickListener {
-            val intent = Intent(this, FriendsActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
+            finish()
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
 
         FriendsController.getFriendRequests { requests, exception ->
