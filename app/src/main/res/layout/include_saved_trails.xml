@@ -1,18 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FAF6FF"
-    android:gravity="center"
-    android:padding="32dp">
+    android:paddingTop="8dp"
+    android:paddingBottom="76dp">
+
+    <!-- Filter chips row -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp"
+        android:background="#FAF6FF">
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupFilters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            app:singleSelection="false">
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="This Week" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Challenging"
+                app:checkedIconVisible="true"
+                app:checkedIconTint="@color/purple_200"
+                app:chipBackgroundColor="@color/purple_50"
+                app:chipStrokeColor="@color/purple_200"
+                app:chipStrokeWidth="1dp"
+                app:checkedIcon="@drawable/ic_check" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Uphill" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Boardwalk" />
+        </com.google.android.material.chip.ChipGroup>
+    </HorizontalScrollView>
+
+    <!-- Sort row -->
+    <LinearLayout
+        android:id="@+id/sortLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+        <TextView
+            android:id="@+id/textSort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\u2195 Sort"
+            android:textColor="@color/purple_500"
+            android:textStyle="bold"
+            android:drawableStart="@drawable/ic_sort"
+            android:drawablePadding="4dp"
+            android:paddingEnd="16dp"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#E0E0E0"/>
+        <ImageButton
+            android:id="@+id/buttonListGridToggle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_list"
+            android:contentDescription="Toggle list/grid" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textSavedTrailsPlaceholder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:text="Saved Trails will appear here."
         android:textSize="18sp"
         android:textColor="#888"
         android:gravity="center"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewTrails"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="16dp"
+        tools:listitem="@layout/item_trail"/>
 </LinearLayout>

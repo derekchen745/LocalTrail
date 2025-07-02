@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
 import com.example.localtrail.model.Trail
 
-class TrailsAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
+class TrailsAdapter(private val trails: List<Trail>, private val onTrailClick: ((Trail) -> Unit)? = null) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
     class TrailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val card: CardView = view.findViewById(R.id.cardTrail)
         val nameText: TextView = view.findViewById(R.id.textTrailName)
@@ -28,6 +28,9 @@ class TrailsAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Trai
         holder.nameText.text = trail.name
         holder.locationText.text = trail.location
         holder.descriptionText.text = trail.description
+        holder.card.setOnClickListener {
+            onTrailClick?.invoke(trail)
+        }
     }
 
     override fun getItemCount() = trails.size

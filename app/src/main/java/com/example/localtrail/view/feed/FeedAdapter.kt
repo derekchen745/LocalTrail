@@ -6,12 +6,18 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
+import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
+import com.example.localtrail.controller.FriendsController
 
-class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class FeedAdapter(
+    private val trails: List<Trail>,
+    private val onMenuAction: ((Trail, Int) -> Unit)? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val TYPE_HEADER = 0
         private const val TYPE_TRAIL = 1
@@ -58,35 +64,63 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is FeedViewHolder -> {
-                val trail = trails[position - 1] // -1 for header
+                val trail = trails[position - 1]
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
-                holder.dateText.text = "June 22, 2025" // Placeholder
+                holder.dateText.text = "June 22, 2025"
 
-                // Setup menu click listener
                 holder.menu.setOnClickListener { view ->
-                    val popup = PopupMenu(view.context, view)
-                    popup.menu.add("Save Trail")
-                    popup.menu.add("View Profile")
-                    popup.menu.add("Add Friend")
+                    TrailsController.isTrailSavedByUser(trail.id) { isSaved ->
+                        FriendsController.isFriend(trail.userID) { isFriend, exception ->
+                            if (exception != null) {
+                                // Handle error
+                                return@isFriend
+                            }
 
-                    popup.setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.title) {
-                            "Save Trail" -> {
-                                // TODO: Implement save trail functionality
+                            val popup = PopupMenu(view.context, view)
+                            val saveOption = if (isSaved) "Unsave Trail" else "Save Trail"
+                            popup.menu.add(saveOption)
+                            popup.menu.add("View Profile")
+
+                            if (!isFriend) {
+                                popup.menu.add(view.context.getString(R.string.menu_add_friend)).setIcon(R.drawable.ic_add_gray_32)
                             }
-                            "View Profile" -> {
-                                // TODO: Implement view profile functionality
+
+                            popup.setOnMenuItemClickListener { menuItem ->
+                                when (menuItem.title) {
+                                    "Save Trail" -> {
+                                        TrailsController.saveTrailToUser(trail) { success, exception ->
+                                            val message = if (success) {
+                                                "Trail saved to your collection"
+                                            } else {
+                                                "Failed to save trail: ${exception?.message ?: "Unknown error"}"
+                                            }
+                                            Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    "Unsave Trail" -> {
+                                        TrailsController.removeTrailFromUser(trail.id) { success, exception ->
+                                            val message = if (success) {
+                                                "Trail removed from your collection"
+                                            } else {
+                                                "Failed to remove trail: ${exception?.message ?: "Unknown error"}"
+                                            }
+                                            Toast.makeText(holder.itemView.context, message, Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    "View Profile" -> {
+                                        // TODO: Implement view profile functionality
+                                    }
+                                    view.context.getString(R.string.menu_add_friend) -> {
+                                        onMenuAction?.invoke(trail, R.id.menu_add_friend)
+                                    }
+                                }
+                                true
                             }
-                            "Add Friend" -> {
-                                // TODO: Implement add friend functionality
-                            }
+                            popup.show()
                         }
-                        true
                     }
-
-                    popup.show()
                 }
             }
             is EmptyViewHolder -> {
@@ -98,6 +132,6 @@ class FeedAdapter(private val trails: List<Trail>) : RecyclerView.Adapter<Recycl
 
     override fun getItemCount(): Int = when {
         trails.isEmpty() -> 1
-        else -> trails.size + 1 // +1 for header
+        else -> trails.size + 1
     }
 }

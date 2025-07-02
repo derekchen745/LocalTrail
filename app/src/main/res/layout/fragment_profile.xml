@@ -65,18 +65,24 @@
             android:layout_gravity="start"
             android:layout_marginBottom="8dp" />
 
-        <TextView
+        <EditText
             android:id="@+id/textViewProfileBio"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4th Year computer Engineering student enjoying hiking and dawe;wek;k ;asdl ka;dk;asldk; askd ;alskd;laskd"
             android:textSize="15sp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="2dp"
-            android:maxLines="3"
+            android:maxLines="2"
+            android:lines="2"
             android:ellipsize="end"
             android:textColor="#222"
-            android:gravity="start"/>
+            android:gravity="start"
+            android:background="@android:color/transparent"
+            android:inputType="textMultiLine"
+            android:scrollHorizontally="false"
+            android:overScrollMode="never"
+            android:scrollbars="none"/>
+
         <TextView
             android:id="@+id/textViewProfileFriends"
             android:layout_width="wrap_content"
@@ -84,7 +90,7 @@
             android:text="10 Friends"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="10dp"
             android:gravity="start"/>
     </LinearLayout>
 
