@@ -49,7 +49,10 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/profile"
-            android:contentDescription="Profile Placeholder" />
+            android:contentDescription="Profile Placeholder"
+            android:background="@drawable/circle_shape"
+            android:clipToOutline="true"
+            android:scaleType="centerCrop" />
 
         <!-- User ID and Copy Icon -->
         <LinearLayout

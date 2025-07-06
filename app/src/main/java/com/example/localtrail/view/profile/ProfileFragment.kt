@@ -106,6 +106,14 @@ class ProfileFragment : Fragment() {
             override fun onTabReselected(tab: com.google.android.material.tabs.TabLayout.Tab) {}
         })
         
+        binding.root.setOnTouchListener { _, _ ->
+            val descriptionEditText = binding.textViewProfileBio
+            if (descriptionEditText.isFocusable && descriptionEditText.isCursorVisible) {
+                descriptionEditText.clearFocus()
+            }
+            false
+        }
+
         val descriptionEditText = binding.textViewProfileBio
         descriptionEditText.isFocusable = false
         descriptionEditText.isClickable = true
