@@ -19,6 +19,9 @@ object FriendsController {
      */
     fun sendFriendRequest(targetUserId: String, onResult: (Boolean, Exception?) -> Unit) {
         val currentUser = auth.currentUser ?: return onResult(false, Exception("User not logged in"))
+        if (currentUser.uid == targetUserId) {
+            return onResult(false, Exception("Cannot send friend request to yourself"))
+        }
         val targetUserRef = db.collection("users").document(targetUserId)
         db.runTransaction { transaction ->
             val targetSnapshot = transaction.get(targetUserRef)
