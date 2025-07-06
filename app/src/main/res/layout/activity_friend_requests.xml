@@ -33,7 +33,8 @@
             android:text="Friend Requests"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:paddingStart="8dp"
+            android:gravity="left" />
 
         <View
             android:layout_width="40dp"

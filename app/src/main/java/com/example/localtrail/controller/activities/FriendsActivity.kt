@@ -37,5 +37,11 @@ class FriendsActivity : AppCompatActivity() {
             val intent = Intent(this, FriendRequestsActivity::class.java)
             startActivity(intent)
         }
+
+        val addFriendsButton = findViewById<MaterialButton>(R.id.buttonAddFriends)
+        addFriendsButton.setOnClickListener {
+            val intent = Intent(this, AddFriendsActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

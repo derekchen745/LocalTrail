@@ -34,9 +34,10 @@ object AccountController {
      * Creates a new user account in Firebase and saves basic user profile information
      * @param email The email address for the new account
      * @param password The password for the new account
+     * @param username The username for the new account
      * @param onResult Callback with success status and optional exception  
      */
-    fun createAccount(email: String, password: String, onResult: (Boolean, Exception?) -> Unit) {
+    fun createAccount(email: String, password: String, username: String, onResult: (Boolean, Exception?) -> Unit) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -46,7 +47,7 @@ object AccountController {
                         val userProfile = hashMapOf(
                             "uid" to uid,
                             "email" to email,
-                            "username" to "",
+                            "username" to username,
                             "description" to "",
                             "savedTrails" to emptyList<Map<String, Any>>()
                         )

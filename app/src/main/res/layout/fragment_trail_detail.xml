@@ -61,7 +61,7 @@
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:background="#E0E0E0"
-                android:src="@android:drawable/ic_menu_mapmode"
+                android:src="@drawable/trail"
                 android:contentDescription="Map Placeholder"
                 android:adjustViewBounds="true"
                 android:cropToPadding="true" />

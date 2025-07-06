@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:paddingTop="58dp"
+        android:paddingBottom="8dp">
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_arrow_back_24"
+            android:contentDescription="Back" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Add Friends"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:paddingStart="8dp"
+            android:gravity="left" />
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" /> <!-- Spacer for symmetry -->
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="16dp"
+        android:layout_marginTop="16dp">
+
+        <!-- Placeholder Profile Photo -->
+        <ImageView
+            android:id="@+id/imageViewProfilePlaceholder"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/profile"
+            android:contentDescription="Profile Placeholder" />
+
+        <!-- User ID and Copy Icon -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+            <TextView
+                android:id="@+id/textViewUserId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1234 5678"
+                android:textSize="16sp"
+                android:textColor="@android:color/black" />
+            <ImageButton
+                android:id="@+id/buttonCopyUserId"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_copy_paste"
+                android:contentDescription="Copy User ID"
+                android:background="?attr/selectableItemBackgroundBorderless" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="16dp" />
+
+        <!-- Add Friends Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Friend"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp" />
+
+        <!-- Input Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextFriendId"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter User ID"
+                android:inputType="text" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Send Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSendFriendRequest"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send Friend Request"
+            android:textSize="16sp"
+            android:layout_marginTop="32dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -23,6 +23,7 @@ class CreateAccountActivity : AppCompatActivity() {
         val editTextEmail = findViewById<EditText>(R.id.editTextEmail)
         val editTextPassword = findViewById<EditText>(R.id.editTextPassword)
         val editTextConfirmPassword = findViewById<EditText>(R.id.editTextConfirmPassword)
+        val editTextUsername = findViewById<EditText>(R.id.editTextUsername)
 
         textViewBackToLogin.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
@@ -34,6 +35,7 @@ class CreateAccountActivity : AppCompatActivity() {
             val email = editTextEmail.text.toString()
             val password = editTextPassword.text.toString()
             val confirmPassword = editTextConfirmPassword.text.toString()
+            val username = editTextUsername.text.toString()
             if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 showCreateAccountError("Please enter a valid email address")
                 return@setOnClickListener
@@ -42,7 +44,7 @@ class CreateAccountActivity : AppCompatActivity() {
                 showCreateAccountError("Passwords do not match")
                 return@setOnClickListener
             }
-            AccountController.createAccount(email, password) { success, exception ->
+            AccountController.createAccount(email, password, username) { success, exception ->
                 if (success) {
                     onCreateAccountSuccess()
                 } else {

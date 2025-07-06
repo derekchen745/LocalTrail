@@ -45,6 +45,7 @@
             android:exported="true"
             android:theme="@style/Theme.LocalTrail"
             android:label="@string/app_name" />
+        <activity android:name=".controller.activities.AddFriendsActivity" />
         <meta-data
             android:name="com.mapbox.token"
             android:value="${MAPBOX_ACCESS_TOKEN}" />
