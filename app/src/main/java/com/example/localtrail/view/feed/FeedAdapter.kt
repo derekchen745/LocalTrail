@@ -70,6 +70,14 @@ class FeedAdapter(
                 holder.userText.text = trail.username
                 holder.dateText.text = "June 22, 2025"
 
+                // Add click listener to open trail summary
+                holder.card.setOnClickListener {
+                    val context = holder.itemView.context
+                    val intent = android.content.Intent(context, com.example.localtrail.view.trail.TrailDetailActivity::class.java)
+                    intent.putExtra("trail", trail)
+                    context.startActivity(intent)
+                }
+
                 holder.menu.setOnClickListener { view ->
                     TrailsController.isTrailSavedByUser(trail.id) { isSaved ->
                         FriendsController.isFriend(trail.userID) { isFriend, exception ->
