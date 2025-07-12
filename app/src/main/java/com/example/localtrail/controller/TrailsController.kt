@@ -1,11 +1,17 @@
 package com.example.localtrail.controller
 
+import android.util.Log
+import com.example.localtrail.App
 import com.example.localtrail.model.Trail
 import com.example.localtrail.model.SavedTrail
+import com.example.localtrail.model.db.AppDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object TrailsController {
     init {
@@ -23,7 +29,6 @@ object TrailsController {
             .addOnSuccessListener { querySnapshot ->
                 val trails = querySnapshot.map { doc ->
                     val trail = doc.toObject(Trail::class.java)
-                    trail.id = doc.id
                     trail
                 }
                 onResult(trails)
@@ -41,7 +46,6 @@ object TrailsController {
             .addOnSuccessListener { querySnapshot ->
                 val trails = querySnapshot.map { doc ->
                     val trail = doc.toObject(Trail::class.java)
-                    trail.id = doc.id
                     trail
                 }
                 onResult(trails)
@@ -53,6 +57,7 @@ object TrailsController {
 
     fun saveTrail(trail: Trail, onResult: (Boolean, Exception?) -> Unit) {
         val db = FirebaseFirestore.getInstance()
+        val localDb = AppDatabase.getInstance(App.context)
         val trailsCollection = db.collection("trails")
         val data = hashMapOf(
             "name" to trail.name,
@@ -64,11 +69,22 @@ object TrailsController {
         )
         if (trail.id.isNotEmpty()) {
             trailsCollection.document(trail.id).set(data)
-                .addOnSuccessListener { onResult(true, null) }
+                .addOnSuccessListener {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        localDb.trailDao().insert(trail)
+                    }
+                    onResult(true, null)
+                }
                 .addOnFailureListener { e -> onResult(false, e) }
         } else {
             trailsCollection.add(data)
-                .addOnSuccessListener { onResult(true, null) }
+                .addOnSuccessListener { docRef ->
+                    val updatedTrail = trail.copy(id = docRef.id)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        localDb.trailDao().insert(updatedTrail)
+                    }
+                    onResult(true, null)
+                }
                 .addOnFailureListener { e -> onResult(false, e) }
         }
     }
@@ -98,7 +114,6 @@ object TrailsController {
                     val trails = querySnapshot.documents.mapNotNull { doc ->
                         try {
                             val trail = doc.toObject(Trail::class.java)
-                            trail?.id = doc.id
                             trail
                         } catch (e: Exception) {
                             null
