@@ -45,7 +45,16 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.mapView.getMapboxMap().loadStyleUri(com.mapbox.maps.Style.MAPBOX_STREETS)
+
+        // Zoom in on the map
+        binding.mapView.getMapboxMap().setCamera(
+            com.mapbox.maps.CameraOptions.Builder()
+                .center(com.mapbox.geojson.Point.fromLngLat(-79.3832, 43.6532)) //Placeholder coordinates for Toronto
+                .zoom(14.0)
+                .build()
+        )
     }
 
     override fun onDestroyView() {
