@@ -30,19 +30,18 @@
         android:orientation="vertical"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:paddingBottom="72dp"
+        android:paddingBottom="88dp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:background="@android:color/transparent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_initiate_trail"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Start Trail"
-            android:elevation="8dp"
-            android:backgroundTint="@color/purple_500"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:paddingEnd="16dp"
+            android:textSize="22sp" />
     </LinearLayout>
 </FrameLayout>

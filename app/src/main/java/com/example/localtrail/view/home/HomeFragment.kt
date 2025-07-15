@@ -18,6 +18,10 @@ import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.TrailsController
 import com.mapbox.maps.Style
 import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
+import com.mapbox.geojson.Point
 import com.example.localtrail.R
 import kotlinx.coroutines.launch
 
@@ -46,7 +50,25 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.mapView.getMapboxMap().loadStyleUri(com.mapbox.maps.Style.MAPBOX_STREETS)
+        binding.mapView.getMapboxMap().loadStyleUri(com.mapbox.maps.Style.MAPBOX_STREETS) {
+            // Style loaded callback - add circle marker here
+            val currentLocation = Point.fromLngLat(-79.3832, 43.6532) // Toronto coordinates
+            
+            // Add circle marker to current location
+            val annotationApi = binding.mapView.annotations
+            val circleAnnotationManager = annotationApi.createCircleAnnotationManager()
+            
+            val circleAnnotationOptions = CircleAnnotationOptions()
+                .withPoint(currentLocation)
+                .withCircleRadius(8.0) // Circle size
+                .withCircleColor("#FF0000") // Red color
+                .withCircleStrokeWidth(2.0) // Border width
+                .withCircleStrokeColor("#FFFFFF") // White border
+            
+            circleAnnotationManager.create(circleAnnotationOptions)
+            
+            Log.d("MapMarker", "Circle marker created at: ${currentLocation.longitude()}, ${currentLocation.latitude()}")
+        }
 
         // Zoom in on the map
         binding.mapView.getMapboxMap().setCamera(

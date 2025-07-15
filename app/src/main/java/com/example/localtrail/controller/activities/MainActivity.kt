@@ -36,8 +36,6 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (hasLocationPermission()) {
@@ -50,14 +48,6 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         navView.setupWithNavController(navController)
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.navigation_profile) {
-                binding.toolbar.visibility = View.GONE
-            } else {
-                binding.toolbar.visibility = View.VISIBLE
-            }
-        }
 
         navView.setOnItemSelectedListener { item ->
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
