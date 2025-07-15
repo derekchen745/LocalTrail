@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("kotlin-parcelize")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -69,4 +70,6 @@ dependencies {
     implementation("com.mapbox.maps:android:11.3.0")
     implementation("com.google.android.material:material:1.11.0") // Material Components for Material 3
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("androidx.room:room-runtime:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
 }

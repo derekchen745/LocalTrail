@@ -1,12 +1,18 @@
 package com.example.localtrail.model
 
 import android.os.Parcelable
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.localtrail.model.enums.TrailPrivacy
+import com.google.firebase.firestore.DocumentId
 import kotlinx.parcelize.Parcelize
 
+@Entity(tableName = "trails")
 @Parcelize
-class Trail(
-    var id: String = "",
+data class Trail(
+    @PrimaryKey
+    @DocumentId
+    val id: String = "",
     var userID: String = "",
     var name: String? = null,
     var location: String? = null,
