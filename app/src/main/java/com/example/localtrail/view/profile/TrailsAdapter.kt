@@ -8,13 +8,22 @@ import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
 import com.example.localtrail.model.Trail
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import androidx.core.content.ContextCompat
 
-class TrailsAdapter(private val trails: List<Trail>, private val onTrailClick: ((Trail) -> Unit)? = null) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
-    class TrailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val card: CardView = view.findViewById(R.id.cardTrail)
-        val nameText: TextView = view.findViewById(R.id.textTrailName)
-        val locationText: TextView = view.findViewById(R.id.textTrailLocation)
-        val descriptionText: TextView = view.findViewById(R.id.textTrailDescription)
+class TrailsAdapter(
+    private val onTrailClick: (Trail) -> Unit
+) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
+
+    private val trails = mutableListOf<Trail>()
+
+    class TrailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val card: CardView = itemView.findViewById(R.id.cardTrail)
+        val nameText: TextView = itemView.findViewById(R.id.textTrailName)
+        val locationText: TextView = itemView.findViewById(R.id.textTrailLocation)
+        val descriptionText: TextView = itemView.findViewById(R.id.textTrailDescription)
+        val tagChipGroup: ChipGroup = itemView.findViewById(R.id.tagChipGroup)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrailViewHolder {
@@ -29,9 +38,29 @@ class TrailsAdapter(private val trails: List<Trail>, private val onTrailClick: (
         holder.locationText.text = trail.location
         holder.descriptionText.text = trail.description
         holder.card.setOnClickListener {
-            onTrailClick?.invoke(trail)
+            onTrailClick.invoke(trail)
+        }
+
+        // Clear existing chips
+        holder.tagChipGroup.removeAllViews()
+
+        // Add chips for each tag
+        trail.tags?.forEach { tag ->
+            val chip = Chip(holder.itemView.context).apply {
+                text = tag
+                isCheckable = false
+                setChipBackgroundColorResource(R.color.chip_background)
+                setTextColor(ContextCompat.getColor(context, R.color.chip_text))
+            }
+            holder.tagChipGroup.addView(chip)
         }
     }
 
     override fun getItemCount() = trails.size
+
+    fun updateTrails(newTrails: List<Trail>) {
+        trails.clear()
+        trails.addAll(newTrails)
+        notifyDataSetChanged()
+    }
 }

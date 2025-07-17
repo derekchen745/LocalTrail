@@ -37,6 +37,15 @@
             android:layout_height="wrap_content"
             android:text="Description"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+
+        <!-- Add this new section for tags -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/tagChipGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="4dp" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -38,13 +38,17 @@ class SavedTrailsTabFragment : Fragment() {
                 return@getSavedTrails
             }
             showPlaceholder(false)
-            val adapter = TrailsAdapter(trails) { trail ->
+            val adapter = TrailsAdapter { trail ->
                 val intent = Intent(requireContext(), com.example.localtrail.view.trail.TrailDetailActivity::class.java)
                 intent.putExtra("trail", trail)
                 startActivity(intent)
             }
-            binding.recyclerViewTrails.adapter = adapter
-            binding.recyclerViewTrails.layoutManager = LinearLayoutManager(requireContext())
+            binding.recyclerViewTrails.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(requireContext())
+                this.adapter = adapter
+            }
+            adapter.updateTrails(trails)
         }
     }
 
