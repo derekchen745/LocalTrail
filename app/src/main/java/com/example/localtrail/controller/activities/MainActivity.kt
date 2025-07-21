@@ -67,6 +67,11 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
                     navController.navigate(R.id.navigation_dashboard)
                     true
                 }
+                R.id.navigation_friends -> {
+                    val intent = Intent(this, FriendsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
                 else -> false
             }
         }
