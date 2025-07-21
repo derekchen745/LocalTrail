@@ -6,34 +6,18 @@
     android:orientation="vertical"
     android:background="@android:color/white">
 
-    <!-- Toolbar -->
-    <LinearLayout
+    <!-- Title -->
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingTop="58dp"
-        android:paddingBottom="8dp">
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back_24"
-            android:contentDescription="Back" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Friends"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:paddingStart="8dp"
-            android:gravity="left" />
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp" /> <!-- Spacer for symmetry -->
-    </LinearLayout>
+        android:text="Friends"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="left"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <!-- Buttons Row -->
     <LinearLayout
@@ -42,7 +26,9 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="12dp"
+        android:paddingHorizontal="16dp">
+        
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddFriends"
             style="@style/Widget.Material3.Button"
@@ -58,6 +44,7 @@
             app:iconTint="#888888"
             app:iconPadding="8dp"
             android:layout_marginEnd="8dp" />
+            
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonFriendRequests"
             style="@style/Widget.Material3.Button"

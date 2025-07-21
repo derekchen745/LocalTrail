@@ -68,8 +68,8 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
                     true
                 }
                 R.id.navigation_friends -> {
-                    val intent = Intent(this, FriendsActivity::class.java)
-                    startActivity(intent)
+                    navController.popBackStack(R.id.navigation_friends, false)
+                    navController.navigate(R.id.navigation_friends)
                     true
                 }
                 else -> false
