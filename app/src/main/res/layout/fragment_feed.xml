@@ -10,13 +10,25 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@android:color/white">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Social"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="left"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewFeed"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="48dp"
             android:paddingBottom="80dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"

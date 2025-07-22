@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="8dp"
+    android:background="@android:color/white"
     tools:context=".view.profile.ProfileFragment">
 
     <!-- Username and Logout Row -->
@@ -14,9 +14,10 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingTop="32dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -28,7 +29,8 @@
             android:layout_weight="1"
             android:text=""
             android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:gravity="left"/>
 
         <ImageButton
             android:id="@+id/buttonLogoutIcon"
@@ -48,8 +50,8 @@
         android:gravity="start"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         app:layout_constraintTop_toBottomOf="@id/usernameRow"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
