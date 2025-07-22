@@ -253,33 +253,42 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">  <!-- Make sure this is vertical -->
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
 
                 <!-- Tags header with button -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:gravity="center">
                     
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_edit"
-                        android:contentDescription="Tags" />
-                        
-                    <TextView
-                        android:id="@+id/tagsTextView"
+                    <LinearLayout
+                        android:id="@+id/tagsButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tags"
-                        android:textStyle="bold"
-                        android:textSize="16sp"
-                        android:layout_marginStart="6dp"
+                        android:orientation="horizontal"
+                        android:gravity="center"
                         android:background="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
-                        android:padding="8dp" />
+                        android:padding="8dp">
+                        
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_edit"
+                            android:contentDescription="Tags"
+                            android:layout_marginEnd="6dp"/>
+                            
+                        <TextView
+                            android:id="@+id/tagsTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tags"
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Tags container -->
@@ -287,7 +296,10 @@
                     android:id="@+id/tagsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp" />
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:chipSpacingHorizontal="8dp" />
 
             </LinearLayout>
 
