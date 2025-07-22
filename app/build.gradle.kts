@@ -68,6 +68,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.mapbox.maps:android:11.3.0")
+    implementation("com.mapbox.plugin:maps-annotation:11.3.0")
     implementation("com.google.android.material:material:1.11.0") // Material Components for Material 3
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.room:room-runtime:2.7.2")

@@ -29,7 +29,10 @@ dependencyResolutionManagement {
             credentials {
                 username = "mapbox"
                 password = mapboxToken
-            }   
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
         }
         
     }

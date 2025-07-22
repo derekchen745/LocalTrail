@@ -17,6 +17,7 @@ import com.google.android.gms.location.LocationServices
 import android.location.Location
 import androidx.core.app.ActivityCompat
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -30,6 +31,7 @@ private lateinit var fusedLocationClient: FusedLocationProviderClient
 
 private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -85,6 +87,7 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         )
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun getLastKnownLocation() {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
@@ -100,6 +103,7 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
             }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun requestSingleLocationUpdate() {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
             .setMaxUpdates(1)
@@ -123,6 +127,7 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -134,6 +139,7 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         }
     }
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onResume() {
         super.onResume()
         if (hasLocationPermission()) {

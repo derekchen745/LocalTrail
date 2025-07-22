@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
@@ -9,7 +10,13 @@
         android:id="@+id/navigation_home"
         android:name="com.example.localtrail.view.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home">
+
+        <!-- ① Action from Home → Recording -->
+        <action
+            android:id="@+id/action_navigation_home_to_trailRecordingFragment"
+            app:destination="@id/trailRecordingFragment"/>
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -28,4 +35,11 @@
         android:name="com.example.localtrail.view.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <!-- ② Your new recording screen -->
+    <fragment
+        android:id="@+id/trailRecordingFragment"
+        android:name="com.example.localtrail.view.trail.TrailRecordingFragment"
+        android:label="Record Trail"
+        tools:layout="@layout/fragment_trail_recording"/>
 </navigation>

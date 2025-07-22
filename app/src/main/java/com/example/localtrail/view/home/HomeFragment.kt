@@ -1,6 +1,7 @@
 package com.example.localtrail.view.home
 
 import android.app.AlertDialog
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,12 +26,14 @@ import com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 import com.mapbox.geojson.Point
 import com.example.localtrail.R
+import com.example.localtrail.utils.ContinuousLocationHelper
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private lateinit var locationHelper: ContinuousLocationHelper
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,7 +47,8 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
         binding.buttonInitiateTrail.setOnClickListener {
-            showCreateTrailDialog()
+            findNavController()
+                .navigate(R.id.action_navigation_home_to_trailRecordingFragment)
         }
         return root
     }
@@ -50,40 +56,56 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.mapView.getMapboxMap().loadStyleUri(com.mapbox.maps.Style.MAPBOX_STREETS) {
-            // Style loaded callback - add circle marker here
-            val currentLocation = Point.fromLngLat(-79.3832, 43.6532) // Toronto coordinates
-            
-            // Add circle marker to current location
-            val annotationApi = binding.mapView.annotations
-            val circleAnnotationManager = annotationApi.createCircleAnnotationManager()
-            
-            val circleAnnotationOptions = CircleAnnotationOptions()
-                .withPoint(currentLocation)
-                .withCircleRadius(8.0) // Circle size
-                .withCircleColor("#FF0000") // Red color
-                .withCircleStrokeWidth(2.0) // Border width
-                .withCircleStrokeColor("#FFFFFF") // White border
-            
-            circleAnnotationManager.create(circleAnnotationOptions)
-            
-            Log.d("MapMarker", "Circle marker created at: ${currentLocation.longitude()}, ${currentLocation.latitude()}")
-        }
+        locationHelper = ContinuousLocationHelper(
+            host      = this,
+            onLocation = { loc ->
+                // update your map:
+                centerMapOnLocation(loc)
+            },
+            onError    = { err ->
+                Toast.makeText(requireContext(), "Location error: ${err.message}", Toast.LENGTH_SHORT).show()
+            }
+        )
+        binding.mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
+        locationHelper.ensureLocationUpdates()
+    }
 
-        // Zoom in on the map
+    private fun centerMapOnLocation(loc: Location) {
+        val pt = Point.fromLngLat(loc.longitude, loc.latitude)
+
+        // move camera
         binding.mapView.getMapboxMap().setCamera(
             com.mapbox.maps.CameraOptions.Builder()
-                .center(com.mapbox.geojson.Point.fromLngLat(-79.3832, 43.6532)) //Placeholder coordinates for Toronto
+                .center(pt)
                 .zoom(14.0)
                 .build()
         )
+
+        // draw a circle annotation
+        val mgr = binding.mapView.annotations.createCircleAnnotationManager()
+        mgr.create(
+            CircleAnnotationOptions()
+                .withPoint(pt)
+                .withCircleRadius(8.0)
+                .withCircleColor("#3FB1CE")
+                .withCircleStrokeColor("#FFFFFF")
+                .withCircleStrokeWidth(2.0)
+        )
+
+        Log.d("HomeFragment", "Centered map at ${loc.latitude}, ${loc.longitude}")
     }
 
     override fun onDestroyView() {
+        locationHelper.stopLocationUpdates()
         binding.mapView.onStop()
         binding.mapView.onDestroy()
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        locationHelper.ensureLocationUpdates()
     }
 
     override fun onLowMemory() {
