@@ -53,14 +53,20 @@ class AddFriendsFragment : Fragment() {
 
         binding.buttonSendFriendRequest.setOnClickListener {
             val friendId = binding.editTextFriendId.text.toString()
+            val message = binding.editTextMessage.text.toString().trim()
+            
             if (friendId.isBlank()) {
                 Toast.makeText(requireContext(), "Please enter a User ID", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            FriendsController.sendFriendRequest(friendId) { success, exception ->
+            val messageToSend = if (message.isBlank()) null else message
+            FriendsController.sendFriendRequest(friendId, messageToSend) { success, exception ->
                 if (success) {
                     Toast.makeText(requireContext(), "Friend request sent successfully", Toast.LENGTH_SHORT).show()
+                    // Clear the input fields
+                    binding.editTextFriendId.text?.clear()
+                    binding.editTextMessage.text?.clear()
                 } else {
                     Toast.makeText(requireContext(), "Failed to send friend request: ${exception?.message ?: "User not found"}", Toast.LENGTH_SHORT).show()
                 }

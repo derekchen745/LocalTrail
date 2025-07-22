@@ -107,6 +107,22 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Message Field -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add a message (optional)"
+                android:inputType="textMultiLine"
+                android:maxLines="3" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Send Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonSendFriendRequest"

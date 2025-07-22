@@ -43,6 +43,24 @@ class FriendRequestsFragment : Fragment() {
     }
 
     private fun loadFriendRequests() {
+        // One-time migration to clear old format friend requests
+        val sharedPrefs = requireContext().getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+        val migrationDone = sharedPrefs.getBoolean("friend_requests_migration_done", false)
+        
+        if (!migrationDone) {
+            FriendsController.clearAllFriendRequests { success, _ ->
+                if (success) {
+                    sharedPrefs.edit().putBoolean("friend_requests_migration_done", true).apply()
+                }
+                // Continue loading friend requests regardless of migration result
+                loadFriendRequestsActual()
+            }
+        } else {
+            loadFriendRequestsActual()
+        }
+    }
+    
+    private fun loadFriendRequestsActual() {
         FriendsController.getFriendRequests { requests, exception ->
             if (exception != null) {
                 Toast.makeText(requireContext(), "Failed to load friend requests", Toast.LENGTH_SHORT).show()

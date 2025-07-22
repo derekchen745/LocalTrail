@@ -14,10 +14,11 @@ object FriendsController {
      * Sends a friend request to another user by adding the current user's UID to the target user's friendRequests array in Firestore.
      * If a request is already pending, the callback will return false and an informative exception.
      * @param targetUserId The UID of the user to whom the friend request is being sent.
+     * @param message Optional message to include with the friend request.
      * @param onResult Callback with (success: Boolean, exception: Exception?) indicating the result of the operation.
      * @return None directly. The result is provided via the onResult callback.
      */
-    fun sendFriendRequest(targetUserId: String, onResult: (Boolean, Exception?) -> Unit) {
+    fun sendFriendRequest(targetUserId: String, message: String? = null, onResult: (Boolean, Exception?) -> Unit) {
         val currentUser = auth.currentUser ?: return onResult(false, Exception("User not logged in"))
         if (currentUser.uid == targetUserId) {
             return onResult(false, Exception("Cannot send friend request to yourself"))
@@ -26,16 +27,25 @@ object FriendsController {
         db.runTransaction { transaction ->
             val targetSnapshot = transaction.get(targetUserRef)
             val requests = try {
-                targetSnapshot.get("friendRequests") as? List<String> ?: listOf()
+                targetSnapshot.get("friendRequests") as? List<Map<String, Any>> ?: listOf()
             } catch (e: Exception) {
-                listOf<String>()
+                listOf<Map<String, Any>>()
             }
-            if (requests.contains(currentUser.uid)) {
+            
+            // Check if request already exists
+            val existingRequest = requests.find { it["userId"] == currentUser.uid }
+            if (existingRequest != null) {
                 throw Exception("Friend request already pending!")
             }
-            if (!requests.contains(currentUser.uid)) {
-                transaction.update(targetUserRef, "friendRequests", requests + currentUser.uid)
-            }
+            
+            // Create new request with message
+            val newRequest = mapOf(
+                "userId" to currentUser.uid,
+                "message" to (message ?: ""),
+                "timestamp" to System.currentTimeMillis()
+            )
+            
+            transaction.update(targetUserRef, "friendRequests", requests + newRequest)
         }.addOnSuccessListener { onResult(true, null) }
          .addOnFailureListener { e -> onResult(false, e) }
     }
@@ -53,10 +63,10 @@ object FriendsController {
         db.runTransaction { transaction ->
             val userSnapshot = transaction.get(userRef)
             val fromUserSnapshot = transaction.get(fromUserRef)
-            val requests = try {
-                userSnapshot.get("friendRequests") as? List<String> ?: listOf()
+            val rawRequests = try {
+                userSnapshot.get("friendRequests") as? List<Any> ?: listOf()
             } catch (e: Exception) {
-                listOf<String>()
+                listOf<Any>()
             }
             val friends = try {
                 userSnapshot.get("friends") as? List<String> ?: listOf()
@@ -68,9 +78,35 @@ object FriendsController {
             } catch (e: Exception) {
                 listOf<String>()
             }
-            // Remove from friendRequests, add to friends
-            if (requests.contains(fromUserId) && !friends.contains(fromUserId)) {
-                transaction.update(userRef, "friendRequests", requests - fromUserId)
+            
+            // Find and remove the friend request, add to friends
+            var requestFound = false
+            val updatedRequests = rawRequests.filter { requestItem ->
+                when (requestItem) {
+                    is String -> {
+                        if (requestItem == fromUserId) {
+                            requestFound = true
+                            false // Filter out this request
+                        } else {
+                            true // Keep this request
+                        }
+                    }
+                    is Map<*, *> -> {
+                        val requestMap = requestItem as Map<String, Any>
+                        val userId = requestMap["userId"] as? String
+                        if (userId == fromUserId) {
+                            requestFound = true
+                            false // Filter out this request
+                        } else {
+                            true // Keep this request
+                        }
+                    }
+                    else -> true // Keep unknown format
+                }
+            }
+            
+            if (requestFound && !friends.contains(fromUserId)) {
+                transaction.update(userRef, "friendRequests", updatedRequests)
                 transaction.update(userRef, "friends", friends + fromUserId)
                 // Add current user to the other user's friends
                 if (!fromUserFriends.contains(currentUser.uid)) {
@@ -93,12 +129,15 @@ object FriendsController {
         db.runTransaction { transaction ->
             val userSnapshot = transaction.get(userRef)
             val requests = try {
-                userSnapshot.get("friendRequests") as? List<String> ?: listOf()
+                userSnapshot.get("friendRequests") as? List<Map<String, Any>> ?: listOf()
             } catch (e: Exception) {
-                listOf<String>()
+                listOf<Map<String, Any>>()
             }
-            if (requests.contains(fromUserId)) {
-                transaction.update(userRef, "friendRequests", requests - fromUserId)
+            
+            val requestToRemove = requests.find { it["userId"] == fromUserId }
+            if (requestToRemove != null) {
+                val updatedRequests = requests.filter { it["userId"] != fromUserId }
+                transaction.update(userRef, "friendRequests", updatedRequests)
             }
         }.addOnSuccessListener { onResult(true, null) }
          .addOnFailureListener { e -> onResult(false, e) }
@@ -145,7 +184,7 @@ object FriendsController {
 
     /**
      * Retrieves the list of friend request UIDs for the current user from Firestore.
-     * @param onResult Callback with (requests: List<String>?, exception: Exception?) containing the list of friend request UIDs or an error.
+     * @param onResult Callback with (requests: List<FriendRequest>?, exception: Exception?) containing the list of friend requests or an error.
      * @return None directly. The result is provided via the onResult callback.
      */
     fun getFriendRequests(onResult: (List<FriendRequest>?, Exception?) -> Unit) {
@@ -153,24 +192,45 @@ object FriendsController {
         val userRef = db.collection("users").document(currentUser.uid)
 
         userRef.get().addOnSuccessListener { document ->
-            val requests = try {
-                document.get("friendRequests") as? List<String> ?: listOf()
+            val rawRequests = try {
+                document.get("friendRequests") as? List<Any> ?: listOf()
             } catch (e: Exception) {
-                listOf<String>()
+                listOf<Any>()
             }
 
-            if (requests.isEmpty()) {
+            if (rawRequests.isEmpty()) {
                 onResult(emptyList(), null)
                 return@addOnSuccessListener
             }
 
             val friendRequests = mutableListOf<FriendRequest>()
-            val tasks = requests.map { userId ->
-                db.collection("users").document(userId).get().continueWith { task ->
-                    val username = task.result?.getString("username") ?: "Unknown"
-                    friendRequests.add(FriendRequest(userId, username))
+            val tasks = rawRequests.map { requestItem ->
+                when (requestItem) {
+                    is String -> {
+                        // Old format: just user ID string
+                        val userId = requestItem
+                        db.collection("users").document(userId).get().continueWith { task ->
+                            val username = task.result?.getString("username") ?: "Unknown"
+                            friendRequests.add(FriendRequest(userId, username, null))
+                        }
+                    }
+                    is Map<*, *> -> {
+                        // New format: map with userId and message
+                        val requestMap = requestItem as Map<String, Any>
+                        val userId = requestMap["userId"] as? String ?: ""
+                        val message = requestMap["message"] as? String ?: ""
+                        
+                        db.collection("users").document(userId).get().continueWith { task ->
+                            val username = task.result?.getString("username") ?: "Unknown"
+                            friendRequests.add(FriendRequest(userId, username, message))
+                        }
+                    }
+                    else -> {
+                        // Skip unknown format
+                        null
+                    }
                 }
-            }
+            }.filterNotNull()
 
             Tasks.whenAll(tasks).addOnSuccessListener {
                 onResult(friendRequests, null)
@@ -263,6 +323,28 @@ object FriendsController {
             onResult(true, null) 
         }.addOnFailureListener { e -> 
             onResult(false, e) 
+        }
+    }
+
+    /**
+     * Clears all friend requests for all users. This is a one-time migration function
+     * to remove old format friend requests that were stored as strings instead of objects.
+     * @param onResult Callback with (success: Boolean, exception: Exception?) indicating the result of the operation.
+     */
+    fun clearAllFriendRequests(onResult: (Boolean, Exception?) -> Unit) {
+        db.collection("users").get().addOnSuccessListener { querySnapshot ->
+            val batch = db.batch()
+            
+            for (document in querySnapshot.documents) {
+                val userRef = db.collection("users").document(document.id)
+                batch.update(userRef, "friendRequests", emptyList<Map<String, Any>>())
+            }
+            
+            batch.commit()
+                .addOnSuccessListener { onResult(true, null) }
+                .addOnFailureListener { e -> onResult(false, e) }
+        }.addOnFailureListener { e ->
+            onResult(false, e)
         }
     }
 }
