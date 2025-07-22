@@ -54,7 +54,8 @@ class FriendsFragment : Fragment() {
                 return@getFriends
             }
 
-            val adapter = FriendsAdapter(friends ?: emptyList())
+            val mutableFriends = (friends ?: emptyList()).toMutableList()
+            val adapter = FriendsAdapter(mutableFriends)
             binding.recyclerViewFriends.adapter = adapter
         }
     }

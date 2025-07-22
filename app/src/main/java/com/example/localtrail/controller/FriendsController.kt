@@ -223,4 +223,46 @@ object FriendsController {
             onResult(null, e)
         }
     }
+
+    /**
+     * Removes a friend from both users' friends lists in Firestore.
+     * @param friendUserId The UID of the friend to be removed.
+     * @param onResult Callback with (success: Boolean, exception: Exception?) indicating the result of the operation.
+     * @return None directly. The result is provided via the onResult callback.
+     */
+    fun removeFriend(friendUserId: String, onResult: (Boolean, Exception?) -> Unit) {
+        val currentUser = auth.currentUser ?: return onResult(false, Exception("User not logged in"))
+        val currentUserRef = db.collection("users").document(currentUser.uid)
+        val friendUserRef = db.collection("users").document(friendUserId)
+        
+        db.runTransaction { transaction ->
+            val currentUserSnapshot = transaction.get(currentUserRef)
+            val friendUserSnapshot = transaction.get(friendUserRef)
+            
+            val currentUserFriends = try {
+                currentUserSnapshot.get("friends") as? List<String> ?: listOf()
+            } catch (e: Exception) {
+                listOf<String>()
+            }
+            
+            val friendUserFriends = try {
+                friendUserSnapshot.get("friends") as? List<String> ?: listOf()
+            } catch (e: Exception) {
+                listOf<String>()
+            }
+            
+            // Remove from both users' friends lists
+            if (currentUserFriends.contains(friendUserId)) {
+                transaction.update(currentUserRef, "friends", currentUserFriends - friendUserId)
+            }
+            
+            if (friendUserFriends.contains(currentUser.uid)) {
+                transaction.update(friendUserRef, "friends", friendUserFriends - currentUser.uid)
+            }
+        }.addOnSuccessListener { 
+            onResult(true, null) 
+        }.addOnFailureListener { e -> 
+            onResult(false, e) 
+        }
+    }
 }
