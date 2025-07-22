@@ -1,5 +1,6 @@
 package com.example.localtrail.view.friends
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,6 +8,8 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localtrail.R
 import com.example.localtrail.controller.FriendsController
@@ -35,10 +38,22 @@ class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Ad
         val popupMenu = PopupMenu(anchor.context, anchor)
         popupMenu.menuInflater.inflate(R.menu.friend_options_menu, popupMenu.menu)
         
+        // Make the "Remove Friend" text red
+        val menu = popupMenu.menu
+        val removeFriendItem = menu.findItem(R.id.menu_remove_friend)
+        val spannable = android.text.SpannableString(removeFriendItem.title)
+        spannable.setSpan(
+            android.text.style.ForegroundColorSpan(Color.RED),
+            0,
+            spannable.length,
+            0
+        )
+        removeFriendItem.title = spannable
+        
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.menu_remove_friend -> {
-                    removeFriend(friend, position, itemView)
+                    showConfirmationDialog(friend, position, itemView)
                     true
                 }
                 else -> false
@@ -46,6 +61,17 @@ class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Ad
         }
         
         popupMenu.show()
+    }
+    
+    private fun showConfirmationDialog(friend: Friend, position: Int, itemView: View) {
+        AlertDialog.Builder(itemView.context)
+            .setTitle("Remove Friend")
+            .setMessage("Are you sure you want to remove ${friend.username} from your friends list?")
+            .setPositiveButton("Remove") { _, _ ->
+                removeFriend(friend, position, itemView)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
     
     private fun removeFriend(friend: Friend, position: Int, itemView: View) {
