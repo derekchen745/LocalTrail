@@ -5,16 +5,34 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textUsername"
+    <LinearLayout
+        android:id="@+id/layoutUserInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Username"
-        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+        android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/buttonAccept" />
+        app:layout_constraintEnd_toStartOf="@id/buttonAccept">
+
+        <TextView
+            android:id="@+id/textUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username"
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
+
+        <TextView
+            android:id="@+id/textMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Message text here"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/buttonAccept"

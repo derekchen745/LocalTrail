@@ -20,6 +20,7 @@ class FriendRequestsAdapter(
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val usernameText: TextView = view.findViewById(R.id.textUsername)
+        val messageText: TextView = view.findViewById(R.id.textMessage)
         val acceptButton: ImageView = view.findViewById(R.id.buttonAccept)
         val denyButton: ImageView = view.findViewById(R.id.buttonDeny)
     }
@@ -32,6 +33,14 @@ class FriendRequestsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val friendRequest = requests[position]
         holder.usernameText.text = friendRequest.username
+
+        // Handle message display
+        if (!friendRequest.message.isNullOrBlank()) {
+            holder.messageText.text = friendRequest.message
+            holder.messageText.visibility = View.VISIBLE
+        } else {
+            holder.messageText.visibility = View.GONE
+        }
 
         holder.acceptButton.setOnClickListener {
             onAction(friendRequest, Action.ACCEPT)

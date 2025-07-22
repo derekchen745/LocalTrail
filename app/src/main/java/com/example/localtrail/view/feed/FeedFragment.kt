@@ -36,7 +36,7 @@ private var _binding: FragmentFeedBinding? = null
                 _binding?.let { binding ->
                     val adapter = FeedAdapter(trails) { trail, menuItemId ->
                         if (menuItemId == R.id.menu_add_friend) {
-                            FriendsController.sendFriendRequest(trail.userID) { success, exception ->
+                            FriendsController.sendFriendRequest(trail.userID, null) { success, exception ->
                                 val message = if (success) {
                                     "Friend request sent!"
                                 } else if (exception?.message == "Friend request already pending!") {
