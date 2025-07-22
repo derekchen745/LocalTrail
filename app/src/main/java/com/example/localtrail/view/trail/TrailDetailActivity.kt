@@ -3,11 +3,19 @@ package com.example.localtrail.view.trail
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.localtrail.R
+import com.example.localtrail.databinding.ActivityTrailDetailBinding
 
 class TrailDetailActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityTrailDetailBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_trail_detail)
+        binding = ActivityTrailDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Enable the back button in the action bar
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
 
         if (savedInstanceState == null) {
             val fragment = TrailDetailFragment()
@@ -16,5 +24,11 @@ class TrailDetailActivity : AppCompatActivity() {
                 .replace(R.id.trailDetailContainer, fragment)
                 .commit()
         }
+    }
+
+    // Handle back button click
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

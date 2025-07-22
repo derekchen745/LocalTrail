@@ -1,137 +1,150 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:navigationIcon="@drawable/ic_arrow_back" />
 
-        <!-- Toolbar with back button and title -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingTop="40dp"
-            android:paddingBottom="8dp">
-            <ImageButton
-                android:id="@+id/backButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_arrow_back_24"
-                android:contentDescription="Back" />
-            <TextView
-                android:id="@+id/trailNameTextView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Trail Name"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                android:gravity="center"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp" />
-            <ImageButton
-                android:id="@+id/shareButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_share"
-                android:contentDescription="Share" />
-        </LinearLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
 
-        <!-- Map Placeholder wrapped in CardView for rounded corners -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
-            android:layout_gravity="center_horizontal"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="2dp">
-            <ImageView
-                android:id="@+id/mapPlaceholder"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:background="#E0E0E0"
-                android:src="@drawable/trail"
-                android:contentDescription="Map Placeholder"
-                android:adjustViewBounds="true"
-                android:cropToPadding="true" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- User and Date -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="8dp">
-            <TextView
-                android:id="@+id/usernameTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Username"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:gravity="center_horizontal" />
-            <TextView
-                android:id="@+id/dateTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Date"
-                android:textSize="16sp"
-                android:gravity="center_horizontal" />
-        </LinearLayout>
+            android:padding="16dp">
 
-        <!-- Trail Stats Grid -->
-        <GridLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:rowCount="3"
-            android:layout_marginBottom="12dp"
-            android:alignmentMode="alignMargins"
-            android:useDefaultMargins="true"
-            android:layout_gravity="center_horizontal">
-
+            <!-- Toolbar with back button and title -->
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="0"
-                android:layout_column="0"
-                android:gravity="center_horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingTop="40dp"
+                android:paddingBottom="8dp">
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_arrow_back_24"
+                    android:contentDescription="Back" />
                 <TextView
-                    android:text="Distance"
+                    android:id="@+id/trailNameTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trail Name"
+                    android:textSize="26sp"
                     android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/distanceTextView"
-                    android:text="5.2km"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:gravity="center"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp" />
+                <ImageButton
+                    android:id="@+id/shareButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@android:drawable/ic_menu_share"
+                    android:contentDescription="Share" />
             </LinearLayout>
+
+            <!-- Map Placeholder wrapped in CardView for rounded corners -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:layout_gravity="center_horizontal"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="2dp">
+                <ImageView
+                    android:id="@+id/mapPlaceholder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:background="#E0E0E0"
+                    android:src="@drawable/trail"
+                    android:contentDescription="Map Placeholder"
+                    android:adjustViewBounds="true"
+                    android:cropToPadding="true" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- User and Date -->
             <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="0"
-                android:layout_column="1"
-                android:gravity="center_horizontal">
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="8dp">
+                <TextView
+                    android:id="@+id/usernameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Username"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:gravity="center_horizontal" />
+                <TextView
+                    android:id="@+id/dateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textSize="16sp"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <!-- Trail Stats Grid -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="3"
+                android:layout_marginBottom="12dp"
+                android:alignmentMode="alignMargins"
+                android:useDefaultMargins="true"
+                android:layout_gravity="center_horizontal">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_column="0"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:text="Distance"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/distanceTextView"
+                        android:text="5.2km"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="0"
+                    android:layout_column="1"
+                    android:gravity="center_horizontal">
                 <TextView
                     android:text="Duration"
                     android:textStyle="bold"
@@ -145,37 +158,37 @@
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_column="0"
-                android:gravity="center_horizontal">
-                <TextView
-                    android:text="Elevation"
-                    android:textStyle="bold"
-                    android:textSize="16sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/elevationTextView"
-                    android:text="120m"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="1"
-                android:layout_column="1"
-                android:gravity="center_horizontal">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="1"
+                    android:layout_column="0"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:text="Elevation"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:id="@+id/elevationTextView"
+                        android:text="120m"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="1"
+                    android:layout_column="1"
+                    android:gravity="center_horizontal">
                 <TextView
                     android:text="Avg. Speed"
                     android:textStyle="bold"
@@ -189,15 +202,15 @@
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="2"
-                android:layout_column="0"
-                android:gravity="center_horizontal">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="2"
+                    android:layout_column="0"
+                    android:gravity="center_horizontal">
                 <TextView
                     android:text="Effort"
                     android:textStyle="bold"
@@ -211,15 +224,15 @@
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_row="2"
-                android:layout_column="1"
-                android:gravity="center_horizontal">
+                </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_row="2"
+                    android:layout_column="1"
+                    android:gravity="center_horizontal">
                 <TextView
                     android:text="Weather"
                     android:textStyle="bold"
@@ -233,46 +246,73 @@
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-            </LinearLayout>
-        </GridLayout>
+                </LinearLayout>
+            </GridLayout>
 
-        <!-- Tags -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@android:drawable/ic_menu_edit"
-                android:contentDescription="Tags" />
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Tags -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tags"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_marginStart="6dp" />
+                android:orientation="vertical"
+                android:layout_marginTop="16dp">
+
+                <!-- Tags header with button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    
+                    <LinearLayout
+                        android:id="@+id/tagsButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="8dp">
+                        
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@android:drawable/ic_menu_edit"
+                            android:contentDescription="Tags"
+                            android:layout_marginEnd="6dp"/>
+                            
+                        <TextView
+                            android:id="@+id/tagsTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tags"
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Tags container -->
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/tagsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:chipSpacingHorizontal="8dp" />
+
+            </LinearLayout>
+
+            <!-- Notes -->
+            <TextView
+                android:id="@+id/notesTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notes: ..."
+                android:textSize="15sp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/tagsContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
-            android:gravity="start" />
-
-        <!-- Notes -->
-        <TextView
-            android:id="@+id/notesTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notes: ..."
-            android:textSize="15sp"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</LinearLayout>
