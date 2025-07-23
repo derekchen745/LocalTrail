@@ -13,9 +13,8 @@ class TrailDetailActivity : AppCompatActivity() {
         binding = ActivityTrailDetailBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Enable the back button in the action bar
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
+        // Hide the action bar since we have a custom toolbar in the fragment
+        supportActionBar?.hide()
 
         if (savedInstanceState == null) {
             val fragment = TrailDetailFragment()
