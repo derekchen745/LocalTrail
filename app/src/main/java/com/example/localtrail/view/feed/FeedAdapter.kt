@@ -118,7 +118,10 @@ class FeedAdapter(
                                         }
                                     }
                                     "View Profile" -> {
-                                        // TODO: Implement view profile functionality
+                                        val context = holder.itemView.context
+                                        val intent = android.content.Intent(context, com.example.localtrail.controller.activities.UserProfileActivity::class.java)
+                                        intent.putExtra("USER_ID", trail.userID)
+                                        context.startActivity(intent)
                                     }
                                     view.context.getString(R.string.menu_add_friend) -> {
                                         onMenuAction?.invoke(trail, R.id.menu_add_friend)
