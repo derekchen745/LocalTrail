@@ -9,7 +9,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.localtrail.R
+import com.example.localtrail.controller.ProfilePictureController
 import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
 import com.example.localtrail.controller.FriendsController
@@ -69,6 +71,21 @@ class FeedAdapter(
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
                 holder.dateText.text = "June 22, 2025"
+
+                // Load profile picture for the trail user
+                ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
+                    if (base64Image != null) {
+                        Glide.with(holder.itemView.context)
+                            .load(base64Image)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_account_circle_black_24dp)
+                            .error(R.drawable.ic_account_circle_black_24dp)
+                            .into(holder.avatar)
+                    } else {
+                        // Use default image if no profile picture
+                        holder.avatar.setImageResource(R.drawable.ic_account_circle_black_24dp)
+                    }
+                }
 
                 // Add click listener to open trail summary
                 holder.card.setOnClickListener {
