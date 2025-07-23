@@ -32,6 +32,7 @@ class FeedAdapter(
         val card: CardView = view.findViewById(R.id.cardTrail)
         val avatar: ImageView = view.findViewById(R.id.imageTrailAvatar)
         val nameText: TextView = view.findViewById(R.id.textTrailName)
+        val descriptionText: TextView = view.findViewById(R.id.textTrailDescription)
         val locationText: TextView = view.findViewById(R.id.textTrailLocation)
         val dateText: TextView = view.findViewById(R.id.textTrailDate)
         val userText: TextView = view.findViewById(R.id.textTrailUser)
@@ -70,6 +71,14 @@ class FeedAdapter(
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
+                
+                // Handle description - show if available, hide if empty
+                if (!trail.description.isNullOrBlank()) {
+                    holder.descriptionText.text = trail.description
+                    holder.descriptionText.visibility = android.view.View.VISIBLE
+                } else {
+                    holder.descriptionText.visibility = android.view.View.GONE
+                }
                 
                 // Format and display the creation date
                 val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())

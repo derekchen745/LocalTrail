@@ -22,29 +22,73 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Trail Name"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
+            android:textStyle="bold"
+            android:textSize="16sp"/>
 
-        <TextView
-            android:id="@+id/textTrailLocation"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Location"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp">
+            
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_calendar"
+                android:layout_marginEnd="4dp"
+                android:tint="#888"
+                android:contentDescription="Date icon" />
+            
+            <TextView
+                android:id="@+id/textTrailDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textColor="#888"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="2dp">
+            
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:src="@drawable/ic_location_pin"
+                android:layout_marginEnd="4dp"
+                android:tint="#888"
+                android:contentDescription="Location icon" />
+            
+            <TextView
+                android:id="@+id/textTrailLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textColor="#888"
+                android:textSize="13sp"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textTrailDescription"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"/>
+            android:layout_marginTop="4dp"
+            android:textColor="#666"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:text="Trail description" />
 
         <!-- Add this new section for tags -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/tagChipGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingHorizontal="4dp" />
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 

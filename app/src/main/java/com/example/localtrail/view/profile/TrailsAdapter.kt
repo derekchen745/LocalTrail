@@ -11,16 +11,20 @@ import com.example.localtrail.model.Trail
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import androidx.core.content.ContextCompat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TrailsAdapter(
     private val onTrailClick: (Trail) -> Unit
 ) : RecyclerView.Adapter<TrailsAdapter.TrailViewHolder>() {
 
     private val trails = mutableListOf<Trail>()
+    private val dateFormat = SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
 
     class TrailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val card: CardView = itemView.findViewById(R.id.cardTrail)
         val nameText: TextView = itemView.findViewById(R.id.textTrailName)
+        val dateText: TextView = itemView.findViewById(R.id.textTrailDate)
         val locationText: TextView = itemView.findViewById(R.id.textTrailLocation)
         val descriptionText: TextView = itemView.findViewById(R.id.textTrailDescription)
         val tagChipGroup: ChipGroup = itemView.findViewById(R.id.tagChipGroup)
@@ -35,8 +39,17 @@ class TrailsAdapter(
     override fun onBindViewHolder(holder: TrailViewHolder, position: Int) {
         val trail = trails[position]
         holder.nameText.text = trail.name
+        holder.dateText.text = dateFormat.format(trail.createdAt)
         holder.locationText.text = trail.location
-        holder.descriptionText.text = trail.description
+        
+        // Handle description visibility
+        if (trail.description.isNullOrBlank()) {
+            holder.descriptionText.visibility = View.GONE
+        } else {
+            holder.descriptionText.visibility = View.VISIBLE
+            holder.descriptionText.text = trail.description
+        }
+        
         holder.card.setOnClickListener {
             onTrailClick.invoke(trail)
         }

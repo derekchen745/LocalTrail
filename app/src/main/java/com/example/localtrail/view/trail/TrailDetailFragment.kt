@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
@@ -90,6 +91,19 @@ class TrailDetailFragment : Fragment() {
         // Format and display the creation date
         val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())
         view?.findViewById<TextView>(R.id.dateTextView)?.text = dateFormat.format(trail.createdAt)
+        
+        // Set location
+        view?.findViewById<TextView>(R.id.locationTextView)?.text = trail.location ?: "Unknown location"
+        
+        // Set description with visibility handling
+        val descriptionSection = view?.findViewById<LinearLayout>(R.id.descriptionSection)
+        val descriptionTextView = view?.findViewById<TextView>(R.id.descriptionTextView)
+        if (trail.description.isNullOrBlank()) {
+            descriptionSection?.visibility = View.GONE
+        } else {
+            descriptionSection?.visibility = View.VISIBLE
+            descriptionTextView?.text = trail.description
+        }
         
         // Set stats (placeholders if missing)
         view?.findViewById<TextView>(R.id.distanceTextView)?.text = trail.distance?.let { "${it}km" } ?: "-"

@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.Timestamp
+import java.util.Date
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -438,24 +439,74 @@ object TrailsController {
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     val savedTrailsData = document.get("savedTrails") as? List<Map<String, Any>> ?: listOf()
-                    val trails = savedTrailsData.mapNotNull { data ->
-                        try {
-                            val trail = Trail(
-                                id = data["id"] as? String ?: "",
-                                userID = data["userID"] as? String ?: "",
-                                name = data["name"] as? String,
-                                location = data["location"] as? String,
-                                username = data["username"] as? String ?: ""
-                            )
-                            val savedAt = data["savedAt"] as? Timestamp
-                            Pair(trail, savedAt)
-                        } catch (e: Exception) {
-                            null
-                        }
+                    
+                    if (savedTrailsData.isEmpty()) {
+                        onResult(emptyList(), null)
+                        return@addOnSuccessListener
                     }
-                    val sortedTrails = trails.sortedByDescending { it.second }
-                                            .map { it.first }
-                    onResult(sortedTrails, null)
+                    
+                    // Extract trail IDs and their saved timestamps
+                    val trailInfo = savedTrailsData.mapNotNull { data ->
+                        val trailId = data["id"] as? String
+                        val savedAt = data["savedAt"] as? Timestamp
+                        if (trailId != null) Pair(trailId, savedAt) else null
+                    }
+                    
+                    // Fetch full trail data from trails collection using document IDs
+                    val trailIds = trailInfo.map { it.first }
+                    val allTrails = mutableListOf<Trail>()
+                    var completedRequests = 0
+                    
+                    trailIds.forEach { trailId ->
+                        db.collection("trails").document(trailId)
+                            .get()
+                            .addOnSuccessListener { doc ->
+                                if (doc.exists()) {
+                                    try {
+                                        val data = doc.data!!
+                                        val trail = Trail(
+                                            id = doc.id, // Use document ID as trail ID
+                                            userID = data["userID"] as? String ?: "",
+                                            name = data["name"] as? String,
+                                            location = data["location"] as? String,
+                                            description = data["description"] as? String,
+                                            username = data["username"] as? String ?: "",
+                                            createdAt = (data["createdAt"] as? Timestamp)?.toDate() ?: Date(),
+                                            tags = data["tags"] as? List<String>,
+                                            distance = data["distance"] as? Double,
+                                            duration = data["duration"] as? String,
+                                            elevation = (data["elevation"] as? Number)?.toInt(),
+                                            avgSpeed = data["avgSpeed"] as? Double,
+                                            effort = data["effort"] as? String,
+                                            weather = data["weather"] as? String,
+                                            notes = data["notes"] as? String
+                                        )
+                                        allTrails.add(trail)
+                                    } catch (e: Exception) {
+                                        Log.e("TrailsController", "Error parsing saved trail", e)
+                                    }
+                                }
+                                
+                                completedRequests++
+                                if (completedRequests == trailIds.size) {
+                                    // Sort by saved timestamp (most recently saved first)
+                                    val sortedTrails = allTrails.sortedByDescending { trail ->
+                                        trailInfo.find { it.first == trail.id }?.second
+                                    }
+                                    onResult(sortedTrails, null)
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("TrailsController", "Error fetching saved trail: $trailId", e)
+                                completedRequests++
+                                if (completedRequests == trailIds.size) {
+                                    val sortedTrails = allTrails.sortedByDescending { trail ->
+                                        trailInfo.find { it.first == trail.id }?.second
+                                    }
+                                    onResult(sortedTrails, null)
+                                }
+                            }
+                    }
                 } else {
                     onResult(emptyList(), null)
                 }

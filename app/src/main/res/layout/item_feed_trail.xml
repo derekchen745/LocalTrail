@@ -46,13 +46,49 @@
                     android:text="Derek Chen"
                     android:textStyle="bold"
                     android:textSize="16sp" />
-                <TextView
-                    android:id="@+id/textTrailDate"
-                    android:layout_width="wrap_content"
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="June 22, 2025"
-                    android:textColor="#888"
-                    android:textSize="13sp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_calendar"
+                        android:layout_marginEnd="4dp"
+                        android:tint="#888"
+                        android:contentDescription="Date icon" />
+                    
+                    <TextView
+                        android:id="@+id/textTrailDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="June 22, 2025"
+                        android:textColor="#888"
+                        android:textSize="13sp" />
+                    
+                    <View
+                        android:layout_width="8dp"
+                        android:layout_height="1dp" />
+                    
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_location_pin"
+                        android:layout_marginEnd="4dp"
+                        android:tint="#888"
+                        android:contentDescription="Location icon" />
+                    
+                    <TextView
+                        android:id="@+id/textTrailLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Location"
+                        android:textColor="#888"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <ImageView
@@ -84,13 +120,16 @@
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:text="Niagara Falls Hike" />
+            
             <TextView
-                android:id="@+id/textTrailLocation"
+                android:id="@+id/textTrailDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Location"
+                android:layout_marginTop="4dp"
                 android:textColor="#666"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:text="Trail description" />
         </LinearLayout>
     </LinearLayout>
 
