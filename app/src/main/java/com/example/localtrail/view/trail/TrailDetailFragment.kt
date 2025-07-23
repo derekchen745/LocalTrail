@@ -84,9 +84,13 @@ class TrailDetailFragment : Fragment() {
         // Set title
         view?.findViewById<TextView>(R.id.trailNameTextView)?.text = trail.name ?: getString(R.string.trail_detail_title)
         // Placeholder for map is in the layout
-        // Set author and date (placeholder for now)
+        // Set author and date
         view?.findViewById<TextView>(R.id.usernameTextView)?.text = trail.username ?: "Unknown"
-        view?.findViewById<TextView>(R.id.dateTextView)?.text = "June 15, 2026" // TODO: Use real date if available
+        
+        // Format and display the creation date
+        val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())
+        view?.findViewById<TextView>(R.id.dateTextView)?.text = dateFormat.format(trail.createdAt)
+        
         // Set stats (placeholders if missing)
         view?.findViewById<TextView>(R.id.distanceTextView)?.text = trail.distance?.let { "${it}km" } ?: "-"
         view?.findViewById<TextView>(R.id.durationTextView)?.text = trail.duration ?: "-"

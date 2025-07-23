@@ -101,7 +101,12 @@ object TrailsController {
                                 effort = data["effort"] as? String,
                                 weather = data["weather"] as? String,
                                 tags = tags,
-                                notes = data["notes"] as? String
+                                notes = data["notes"] as? String,
+                                createdAt = try {
+                                    (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate() ?: java.util.Date()
+                                } catch (e: Exception) {
+                                    java.util.Date()
+                                }
                             ).also { trail ->
                                 Log.d("TrailsController", "Created Trail object: id=${trail.id}, name=${trail.name}, userID=${trail.userID}")
                             }
@@ -183,7 +188,12 @@ object TrailsController {
                                     effort = data["effort"] as? String,
                                     weather = data["weather"] as? String,
                                     tags = (data["tags"] as? List<*>)?.mapNotNull { it as? String },
-                                    notes = data["notes"] as? String
+                                    notes = data["notes"] as? String,
+                                    createdAt = try {
+                                        (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate() ?: java.util.Date()
+                                    } catch (e: Exception) {
+                                        java.util.Date()
+                                    }
                                 )
                                 
                                 // Filter based on privacy settings

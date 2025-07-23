@@ -4,6 +4,7 @@ import androidx.room.TypeConverter
 import com.example.localtrail.model.enums.TrailPrivacy
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.Date
 
 
 class TrailTypeConverters {
@@ -19,6 +20,16 @@ class TrailTypeConverters {
         } catch (e: IllegalArgumentException) {
             TrailPrivacy.FRIENDS_ONLY
         }
+    }
+
+    @TypeConverter
+    fun fromDateToLong(date: Date): Long {
+        return date.time
+    }
+
+    @TypeConverter
+    fun fromLongToDate(long: Long): Date {
+        return Date(long)
     }
 
     @TypeConverter

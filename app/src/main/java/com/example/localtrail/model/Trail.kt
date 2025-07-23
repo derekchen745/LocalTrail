@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.example.localtrail.model.enums.TrailPrivacy
 import com.google.firebase.firestore.DocumentId
 import kotlinx.parcelize.Parcelize
+import java.util.Date
 
 @Entity(tableName = "trails")
 @Parcelize
@@ -26,5 +27,6 @@ data class Trail(
     var effort: String? = null,
     var weather: String? = null,
     var tags: List<String>? = null,
-    var notes: String? = null
+    var notes: String? = null,
+    var createdAt: Date = Date()
 ) : Parcelable

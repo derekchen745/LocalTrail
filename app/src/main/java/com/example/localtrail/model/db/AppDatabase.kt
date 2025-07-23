@@ -11,7 +11,7 @@ import com.example.localtrail.model.TrailLocation
 import com.example.localtrail.model.TrailLocationDao
 import com.example.localtrail.model.typeconverters.TrailTypeConverters
 
-@Database(entities = [Trail::class, TrailLocation::class], version = 1, exportSchema = false)
+@Database(entities = [Trail::class, TrailLocation::class], version = 2, exportSchema = false)
 @TypeConverters(TrailTypeConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun trailDao(): TrailDao
@@ -27,7 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "localtrail.db"
-                ).build().also { INSTANCE = it }
+                ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
             }
         }
     }

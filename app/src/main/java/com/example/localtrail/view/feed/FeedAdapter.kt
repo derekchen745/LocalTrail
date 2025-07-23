@@ -70,7 +70,10 @@ class FeedAdapter(
                 holder.nameText.text = trail.name
                 holder.locationText.text = trail.location
                 holder.userText.text = trail.username
-                holder.dateText.text = "June 22, 2025"
+                
+                // Format and display the creation date
+                val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())
+                holder.dateText.text = dateFormat.format(trail.createdAt)
 
                 // Load profile picture for the trail user
                 ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
