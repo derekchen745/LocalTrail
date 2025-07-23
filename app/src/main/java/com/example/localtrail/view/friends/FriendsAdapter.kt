@@ -11,8 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.localtrail.R
 import com.example.localtrail.controller.FriendsController
+import com.example.localtrail.controller.ProfilePictureController
 import com.example.localtrail.model.Friend
 
 class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
@@ -25,7 +27,21 @@ class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Ad
     override fun onBindViewHolder(holder: FriendViewHolder, position: Int) {
         val friend = friends[position]
         holder.usernameTextView.text = friend.username
-        holder.profileImageView.setImageResource(R.drawable.placeholder_circle)
+        
+        // Load profile picture
+        ProfilePictureController.getProfilePictureBase64(friend.userId) { base64Image, _ ->
+            if (base64Image != null) {
+                Glide.with(holder.itemView.context)
+                    .load(base64Image)
+                    .circleCrop()
+                    .placeholder(R.drawable.placeholder_circle)
+                    .error(R.drawable.placeholder_circle)
+                    .into(holder.profileImageView)
+            } else {
+                // Use default image if no profile picture
+                holder.profileImageView.setImageResource(R.drawable.placeholder_circle)
+            }
+        }
         
         holder.menuImageView.setOnClickListener {
             showPopupMenu(holder.menuImageView, friend, position, holder.itemView)
