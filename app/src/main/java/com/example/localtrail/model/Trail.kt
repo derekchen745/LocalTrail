@@ -17,7 +17,7 @@ data class Trail(
     var name: String? = null,
     var location: String? = null,
     var description: String? = null,
-    var privacy: TrailPrivacy = TrailPrivacy.PUBLIC,
+    var privacy: TrailPrivacy = TrailPrivacy.FRIENDS_ONLY,
     var username: String = "",
     var distance: Double? = null,
     var duration: String? = null,

@@ -17,7 +17,7 @@ class TrailTypeConverters {
         return try {
             TrailPrivacy.valueOf(string)
         } catch (e: IllegalArgumentException) {
-            TrailPrivacy.PUBLIC
+            TrailPrivacy.FRIENDS_ONLY
         }
     }
 

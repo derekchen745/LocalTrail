@@ -43,12 +43,13 @@
                     android:paddingStart="8dp"
                     android:paddingEnd="8dp" />
                 <ImageButton
-                    android:id="@+id/shareButton"
+                    android:id="@+id/menuButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_menu_share"
-                    android:contentDescription="Share" />
+                    android:src="@drawable/ic_more_vert"
+                    android:contentDescription="Menu"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <!-- Map Placeholder wrapped in CardView for rounded corners -->

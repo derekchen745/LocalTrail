@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment
 import com.example.localtrail.R
 import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
+import com.example.localtrail.model.enums.TrailPrivacy
 import com.example.localtrail.databinding.FragmentTrailDetailBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.chip.Chip
@@ -48,6 +50,12 @@ class TrailDetailFragment : Fragment() {
         val isOwner = currentUser != null && trail.userID == currentUser.uid
         
         if (isOwner) {
+            // Show menu button for owner
+            binding.menuButton.visibility = View.VISIBLE
+            binding.menuButton.setOnClickListener {
+                showPrivacyMenu()
+            }
+            
             // Set click listener for tags button only if user owns the trail
             binding.tagsTextView.setOnClickListener {
                 showTagsDialog()
@@ -55,6 +63,9 @@ class TrailDetailFragment : Fragment() {
             binding.tagsTextView.isEnabled = true
             binding.tagsTextView.alpha = 1.0f
         } else {
+            // Hide menu button for non-owners
+            binding.menuButton.visibility = View.GONE
+            
             // Disable tags button for non-owners
             binding.tagsTextView.isEnabled = false
             binding.tagsTextView.alpha = 0.5f // Make it look disabled
@@ -128,6 +139,64 @@ class TrailDetailFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun showPrivacyMenu() {
+        val popup = PopupMenu(requireContext(), binding.menuButton)
+        
+        // Add privacy options
+        popup.menu.add("Public")
+        popup.menu.add("Friends Only")
+        popup.menu.add("Private")
+        
+        // Add current privacy indicator
+        val currentPrivacyText = when (trail.privacy) {
+            TrailPrivacy.PUBLIC -> "✓ Public"
+            TrailPrivacy.FRIENDS_ONLY -> "✓ Friends Only"
+            TrailPrivacy.PRIVATE -> "✓ Private"
+        }
+        
+        // Replace current option with checkmark
+        for (i in 0 until popup.menu.size()) {
+            val item = popup.menu.getItem(i)
+            when (item.title) {
+                "Public" -> if (trail.privacy == TrailPrivacy.PUBLIC) item.title = "✓ Public"
+                "Friends Only" -> if (trail.privacy == TrailPrivacy.FRIENDS_ONLY) item.title = "✓ Friends Only"
+                "Private" -> if (trail.privacy == TrailPrivacy.PRIVATE) item.title = "✓ Private"
+            }
+        }
+        
+        popup.setOnMenuItemClickListener { menuItem ->
+            val newPrivacy = when (menuItem.title.toString().replace("✓ ", "")) {
+                "Public" -> TrailPrivacy.PUBLIC
+                "Friends Only" -> TrailPrivacy.FRIENDS_ONLY
+                "Private" -> TrailPrivacy.PRIVATE
+                else -> return@setOnMenuItemClickListener false
+            }
+            
+            if (newPrivacy != trail.privacy) {
+                updateTrailPrivacy(newPrivacy)
+            }
+            true
+        }
+        
+        popup.show()
+    }
+
+    private fun updateTrailPrivacy(newPrivacy: TrailPrivacy) {
+        TrailsController.updateTrailPrivacy(trail.id, newPrivacy) { success, exception ->
+            if (success) {
+                trail.privacy = newPrivacy
+                val privacyText = when (newPrivacy) {
+                    TrailPrivacy.PUBLIC -> "Public"
+                    TrailPrivacy.FRIENDS_ONLY -> "Friends Only"
+                    TrailPrivacy.PRIVATE -> "Private"
+                }
+                Toast.makeText(requireContext(), "Privacy set to $privacyText", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), "Failed to update privacy: ${exception?.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun updateTrailTags(selectedTags: List<String>) {

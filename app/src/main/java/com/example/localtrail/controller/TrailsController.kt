@@ -89,9 +89,9 @@ object TrailsController {
                                 description = data["description"] as? String,
                                 userID = data["userID"] as? String ?: "",
                                 privacy = try {
-                                    TrailPrivacy.valueOf(data["privacy"] as? String ?: "PUBLIC")
+                                    TrailPrivacy.valueOf(data["privacy"] as? String ?: "FRIENDS_ONLY")
                                 } catch (e: Exception) {
-                                    TrailPrivacy.PUBLIC
+                                    TrailPrivacy.FRIENDS_ONLY
                                 },
                                 username = data["username"] as? String ?: "",
                                 distance = (data["distance"] as? Number)?.toDouble(),
@@ -140,47 +140,73 @@ object TrailsController {
     }
 
     fun fetchOtherUsersTrails(currentUserId: String, onResult: (List<Trail>) -> Unit) {
-        FirebaseFirestore.getInstance()
-            .collection("trails")
-            .whereNotEqualTo("userID", currentUserId)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val trails = querySnapshot.documents.mapNotNull { doc ->
-                    try {
-                        val data = doc.data
-                        if (data != null) {
-                            Trail(
-                                id = doc.id,
-                                name = data["name"] as? String,
-                                location = data["location"] as? String,
-                                description = data["description"] as? String,
-                                userID = data["userID"] as? String ?: "",
-                                privacy = try {
-                                    TrailPrivacy.valueOf(data["privacy"] as? String ?: "PUBLIC")
-                                } catch (e: Exception) {
-                                    TrailPrivacy.PUBLIC
-                                },
-                                username = data["username"] as? String ?: "",
-                                distance = (data["distance"] as? Number)?.toDouble(),
-                                duration = data["duration"] as? String,
-                                elevation = (data["elevation"] as? Number)?.toInt(),
-                                avgSpeed = (data["avgSpeed"] as? Number)?.toDouble(),
-                                effort = data["effort"] as? String,
-                                weather = data["weather"] as? String,
-                                tags = (data["tags"] as? List<*>)?.mapNotNull { it as? String },
-                                notes = data["notes"] as? String
-                            )
-                        } else null
-                    } catch (e: Exception) {
-                        Log.e("TrailsController", "Error converting document ${doc.id}", e)
-                        null
-                    }
+        // First, get the current user's friends list
+        com.example.localtrail.controller.FriendsController.getFriends { friendsList, exception ->
+            if (exception != null) {
+                Log.e("TrailsController", "Error fetching friends", exception)
+                // Continue with just public trails if friends fetch fails
+                fetchPublicTrails(currentUserId, emptyList(), onResult)
+                return@getFriends
+            }
+            
+            val friendsIds = friendsList?.map { it.userId } ?: emptyList()
+            fetchPublicTrails(currentUserId, friendsIds, onResult)
+        }
+    }
+    
+    fun fetchPublicTrails(currentUserId: String, friendsIds: List<String>, onResult: (List<Trail>) -> Unit) {
+            FirebaseFirestore.getInstance()
+                .collection("trails")
+                .whereNotEqualTo("userID", currentUserId)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val trails = querySnapshot.documents.mapNotNull { doc ->
+                        try {
+                            val data = doc.data
+                            if (data != null) {
+                                val trail = Trail(
+                                    id = doc.id,
+                                    name = data["name"] as? String,
+                                    location = data["location"] as? String,
+                                    description = data["description"] as? String,
+                                    userID = data["userID"] as? String ?: "",
+                                    privacy = try {
+                                        TrailPrivacy.valueOf(data["privacy"] as? String ?: "FRIENDS_ONLY")
+                                    } catch (e: Exception) {
+                                        TrailPrivacy.FRIENDS_ONLY
+                                    },
+                                    username = data["username"] as? String ?: "",
+                                    distance = (data["distance"] as? Number)?.toDouble(),
+                                    duration = data["duration"] as? String,
+                                    elevation = (data["elevation"] as? Number)?.toInt(),
+                                    avgSpeed = (data["avgSpeed"] as? Number)?.toDouble(),
+                                    effort = data["effort"] as? String,
+                                    weather = data["weather"] as? String,
+                                    tags = (data["tags"] as? List<*>)?.mapNotNull { it as? String },
+                                    notes = data["notes"] as? String
+                                )
+                                
+                                // Filter based on privacy settings
+                                when (trail.privacy) {
+                                    TrailPrivacy.PUBLIC -> trail // Always visible
+                                    TrailPrivacy.FRIENDS_ONLY -> {
+                                        // Only show if user is friends with trail owner
+                                        if (friendsIds.contains(trail.userID)) trail else null
+                                    }
+                                    TrailPrivacy.PRIVATE -> null // Never visible to others
+                                }
+                            } else null
+                        } catch (e: Exception) {
+                            Log.e("TrailsController", "Error converting document ${doc.id}", e)
+                            null
+                        }
+                    }.filterNotNull()
+                    onResult(trails)
                 }
-                onResult(trails)
-            }
-            .addOnFailureListener {
-                onResult(emptyList())
-            }
+                .addOnFailureListener { e ->
+                    Log.e("TrailsController", "Error fetching trails", e)
+                    onResult(emptyList())
+                }
     }
 
     fun saveTrail(trail: Trail, onResult: (Boolean, Exception?) -> Unit) {
@@ -439,6 +465,52 @@ object TrailsController {
             }
             .addOnFailureListener { e ->
                 onResult(false, e)
+            }
+    }
+
+    fun updateTrailPrivacy(trailId: String, privacy: TrailPrivacy, onResult: (Boolean, Exception?) -> Unit) {
+        FirebaseFirestore.getInstance()
+            .collection("trails")
+            .document(trailId)
+            .update("privacy", privacy.name)
+            .addOnSuccessListener {
+                onResult(true, null)
+            }
+            .addOnFailureListener { e ->
+                onResult(false, e)
+            }
+    }
+
+    fun updateAllTrailsPrivacy(privacy: TrailPrivacy, onResult: (Int, Exception?) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("trails")
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val batch = db.batch()
+                var count = 0
+                
+                querySnapshot.documents.forEach { document ->
+                    batch.update(document.reference, "privacy", privacy.name)
+                    count++
+                }
+                
+                if (count > 0) {
+                    batch.commit()
+                        .addOnSuccessListener {
+                            Log.d("TrailsController", "Updated $count trails to ${privacy.name}")
+                            onResult(count, null)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("TrailsController", "Failed to update trails privacy", e)
+                            onResult(0, e)
+                        }
+                } else {
+                    onResult(0, null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TrailsController", "Failed to fetch trails for privacy update", e)
+                onResult(0, e)
             }
     }
 }
