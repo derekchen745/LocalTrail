@@ -5,12 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.activities.LoginActivity
-import com.example.localtrail.controller.activities.FriendsActivity
 import com.example.localtrail.controller.FriendsController
 import com.example.localtrail.databinding.FragmentProfileBinding
 import kotlinx.coroutines.launch
@@ -76,10 +77,7 @@ class ProfileFragment : Fragment() {
         }
 
         binding.buttonLogoutIcon.setOnClickListener {
-            AccountController.signOut()
-            val intent = Intent(requireContext(), LoginActivity::class.java)
-            startActivity(intent)
-            requireActivity().finish()
+            showLogoutConfirmationDialog()
         }
 
         val tabLayout = binding.tabLayoutTrails
@@ -141,8 +139,7 @@ class ProfileFragment : Fragment() {
         }
         
         binding.textViewProfileFriends.setOnClickListener {
-            val intent = Intent(requireContext(), FriendsActivity::class.java)
-            startActivity(intent)
+            findNavController().navigate(R.id.navigation_friends)
         }
     }
 
@@ -154,6 +151,24 @@ class ProfileFragment : Fragment() {
             .replace(binding.frameLayoutTrailsContent.id, fragment)
             .addToBackStack(null)
             .commit()
+    }
+    
+    private fun showLogoutConfirmationDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Log Out")
+            .setMessage("Are you sure you want to log out?")
+            .setPositiveButton("Log Out") { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun performLogout() {
+        AccountController.signOut()
+        val intent = Intent(requireContext(), LoginActivity::class.java)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onDestroyView() {

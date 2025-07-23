@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">LocalTrail</string>
-    <string name="title_home">LocalTrail</string>
-    <string name="title_dashboard">Feed</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Social</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_profile">Profile</string>
     <string name="feed_empty_message">No trails to show. Be the first to create a trail!</string>
@@ -11,4 +11,5 @@
     <string name="trail_detail_title">Trail Details</string>
     <string name="menu_add_friend">Add Friend</string>
     <string name="friend_requests_title">Friend Requests</string>
+    <string name="title_friends">Friends</string>
 </resources>

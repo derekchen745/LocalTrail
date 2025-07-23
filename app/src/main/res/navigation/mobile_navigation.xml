@@ -28,4 +28,29 @@
         android:name="com.example.localtrail.view.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/navigation_friends"
+        android:name="com.example.localtrail.view.friends.FriendsFragment"
+        android:label="@string/title_friends"
+        tools:layout="@layout/fragment_friends">
+        <action
+            android:id="@+id/action_friendsFragment_to_addFriendsFragment"
+            app:destination="@id/addFriendsFragment" />
+        <action
+            android:id="@+id/action_friendsFragment_to_friendRequestsFragment"
+            app:destination="@id/friendRequestsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addFriendsFragment"
+        android:name="com.example.localtrail.view.friends.AddFriendsFragment"
+        android:label="Add Friends"
+        tools:layout="@layout/fragment_add_friends" />
+
+    <fragment
+        android:id="@+id/friendRequestsFragment"
+        android:name="com.example.localtrail.view.friends.FriendRequestsFragment"
+        android:label="Friend Requests"
+        tools:layout="@layout/fragment_friend_requests" />
 </navigation>

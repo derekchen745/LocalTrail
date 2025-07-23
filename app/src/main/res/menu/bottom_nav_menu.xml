@@ -16,4 +16,9 @@
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="@string/title_profile"/>
 
+    <item
+        android:id="@+id/navigation_friends"
+        android:icon="@drawable/ic_friends_black_24dp"
+        android:title="@string/title_friends"/>
+
 </menu>

@@ -2,24 +2,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:background="@android:color/white">
 
-    <ImageView
-        android:id="@+id/imageViewProfile"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/profile"
-        android:contentDescription="Profile Picture" />
+    <!-- Top grid line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0" />
 
-    <TextView
-        android:id="@+id/textViewUsername"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:text="Username"
-        android:gravity="center_vertical" />
+    <!-- Friend entry content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/imageViewProfile"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/profile"
+            android:background="@drawable/circle_bg"
+            android:scaleType="centerCrop"
+            android:contentDescription="Profile Picture" />
+
+        <TextView
+            android:id="@+id/textViewUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:textStyle="normal"
+            android:text="Username" />
+
+        <ImageView
+            android:id="@+id/imageViewFriendMenu"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_more_vert"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:contentDescription="Friend options menu" />
+
+    </LinearLayout>
+
+    <!-- Bottom grid line -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0" />
 
 </LinearLayout>

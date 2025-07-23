@@ -6,34 +6,18 @@
     android:orientation="vertical"
     android:background="@android:color/white">
 
-    <!-- Toolbar -->
-    <LinearLayout
+    <!-- Title -->
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingTop="58dp"
-        android:paddingBottom="8dp">
-        <ImageButton
-            android:id="@+id/backButton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back_24"
-            android:contentDescription="Back" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Friends"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:paddingStart="8dp"
-            android:gravity="left" />
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp" /> <!-- Spacer for symmetry -->
-    </LinearLayout>
+        android:text="Friends"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="left"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
 
     <!-- Buttons Row -->
     <LinearLayout
@@ -41,38 +25,49 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp">
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="20dp"
+        android:paddingHorizontal="20dp">
+        
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddFriends"
-            style="@style/Widget.Material3.Button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
             android:text="Add Friends"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textColor="#222"
             android:backgroundTint="@android:color/white"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
             app:icon="@drawable/ic_add_gray_32"
-            app:iconGravity="top"
+            app:iconGravity="start"
             app:iconTint="#888888"
             app:iconPadding="8dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            app:elevation="2dp" />
+            
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonFriendRequests"
-            style="@style/Widget.Material3.Button"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="Friend Requests"
-            android:textSize="18sp"
+            android:text="Requests"
+            android:textSize="14sp"
             android:textColor="#222"
             android:backgroundTint="@android:color/white"
+            app:strokeColor="#E5E7EB"
+            app:strokeWidth="1dp"
+            app:cornerRadius="12dp"
             app:icon="@drawable/ic_star_gray_32"
-            app:iconGravity="top"
+            app:iconGravity="start"
             app:iconTint="#888888"
             app:iconPadding="8dp"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            app:elevation="2dp" />
     </LinearLayout>
 
     <!-- Friends RecyclerView -->
@@ -81,9 +76,11 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        android:paddingStart="16dp"
+        android:padding="12dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:clipToPadding="false"
-        android:scrollbars="vertical" />
+        android:scrollbars="none"
+        android:overScrollMode="never" />
 
 </LinearLayout>

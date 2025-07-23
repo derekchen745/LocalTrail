@@ -13,42 +13,81 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
         android:paddingBottom="4dp"
+        android:scrollbars="none"
         android:background="#FAF6FF">
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/chipGroupFilters"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            app:singleSelection="false">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            app:singleSelection="true"
+            app:chipSpacingHorizontal="8dp">
             <com.google.android.material.chip.Chip
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="This Week" />
-            <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Choice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="36dp"
                 android:text="Challenging"
-                app:checkedIconVisible="true"
-                app:checkedIconTint="@color/purple_200"
-                app:chipBackgroundColor="@color/purple_50"
-                app:chipStrokeColor="@color/purple_200"
+                android:textColor="#1D1B20"
+                android:textSize="14sp"
+                app:chipCornerRadius="100dp"
+                app:chipMinHeight="36dp"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="#CAC4D0"
                 app:chipStrokeWidth="1dp"
-                app:checkedIcon="@drawable/ic_check" />
+                app:chipEndPadding="16dp"
+                app:chipStartPadding="16dp"
+                app:checkedIconVisible="false"
+                app:rippleColor="#E8DEF8" />
             <com.google.android.material.chip.Chip
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Uphill" />
+                android:layout_height="36dp"
+                android:text="Easy"
+                android:textColor="#1D1B20"
+                android:textSize="14sp"
+                app:chipCornerRadius="100dp"
+                app:chipMinHeight="36dp"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="#CAC4D0"
+                app:chipStrokeWidth="1dp"
+                app:chipEndPadding="16dp"
+                app:chipStartPadding="16dp"
+                app:checkedIconVisible="false"
+                app:rippleColor="#E8DEF8" />
             <com.google.android.material.chip.Chip
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Boardwalk" />
+                android:layout_height="36dp"
+                android:text="Moderate"
+                android:textColor="#1D1B20"
+                android:textSize="14sp"
+                app:chipCornerRadius="100dp"
+                app:chipMinHeight="36dp"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="#CAC4D0"
+                app:chipStrokeWidth="1dp"
+                app:chipEndPadding="16dp"
+                app:chipStartPadding="16dp"
+                app:checkedIconVisible="false"
+                app:rippleColor="#E8DEF8" />
+            <com.google.android.material.chip.Chip
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Scenic"
+                android:textColor="#1D1B20"
+                android:textSize="14sp"
+                app:chipCornerRadius="100dp"
+                app:chipMinHeight="36dp"
+                app:chipBackgroundColor="@android:color/white"
+                app:chipStrokeColor="#CAC4D0"
+                app:chipStrokeWidth="1dp"
+                app:chipEndPadding="16dp"
+                app:chipStartPadding="16dp"
+                app:checkedIconVisible="false"
+                app:rippleColor="#E8DEF8" />
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
