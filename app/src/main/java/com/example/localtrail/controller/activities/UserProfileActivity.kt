@@ -2,6 +2,7 @@ package com.example.localtrail.controller.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -21,8 +22,8 @@ class UserProfileActivity : AppCompatActivity() {
     private lateinit var avatarImageView: ImageView
     private lateinit var friendsTextView: TextView
     private lateinit var trailsRecyclerView: RecyclerView
+    private lateinit var backButton: ImageButton
 
-    private val trailList = mutableListOf<Trail>()
     private lateinit var adapter: TrailsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,6 +36,12 @@ class UserProfileActivity : AppCompatActivity() {
         avatarImageView = findViewById(R.id.imageProfileAvatar)
         friendsTextView = findViewById(R.id.textViewProfileFriends)
         trailsRecyclerView = findViewById(R.id.recyclerViewUserTrails)
+        backButton = findViewById(R.id.backButton)
+
+        // Set up back button
+        backButton.setOnClickListener {
+            finish() // This will close the current activity and return to the previous one (social feed)
+        }
 
         val userId = intent.getStringExtra("USER_ID")
         setupRecyclerView()
@@ -48,7 +55,7 @@ class UserProfileActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = TrailsAdapter(trailList) { selectedTrail ->
+        adapter = TrailsAdapter { selectedTrail ->
             val intent = Intent(this, TrailDetailActivity::class.java)
             intent.putExtra("trail", selectedTrail) // Trail must be Parcelable
             startActivity(intent)
@@ -84,9 +91,7 @@ class UserProfileActivity : AppCompatActivity() {
                 val trails = querySnapshot.documents.mapNotNull {
                     it.toObject(com.example.localtrail.model.Trail::class.java)
                 }
-                trailList.clear()
-                trailList.addAll(trails)
-                adapter.notifyDataSetChanged()
+                adapter.updateTrails(trails)
             }
             .addOnFailureListener {
                 // Optional: show error
