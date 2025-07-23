@@ -120,7 +120,7 @@ class HomeFragment : Fragment() {
                                     name = name,
                                     location = location,
                                     description = description,
-                                    privacy = TrailPrivacy.PUBLIC,
+                                    privacy = TrailPrivacy.FRIENDS_ONLY,
                                     username = user.username
                                 )
                                 Log.d("CreateTrail", "Trail object created: $trail")
