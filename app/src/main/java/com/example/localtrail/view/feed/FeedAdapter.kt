@@ -99,6 +99,21 @@ class FeedAdapter(
                     }
                 }
 
+                // Load profile picture for the trail user
+                ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
+                    if (base64Image != null) {
+                        Glide.with(holder.itemView.context)
+                            .load(base64Image)
+                            .circleCrop()
+                            .placeholder(R.drawable.ic_account_circle_black_24dp)
+                            .error(R.drawable.ic_account_circle_black_24dp)
+                            .into(holder.avatar)
+                    } else {
+                        // Use default image if no profile picture
+                        holder.avatar.setImageResource(R.drawable.ic_account_circle_black_24dp)
+                    }
+                }
+
                 // Add click listener to open trail summary
                 holder.card.setOnClickListener {
                     val context = holder.itemView.context
