@@ -1,5 +1,6 @@
 package com.example.localtrail.view.friends
 
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ import com.bumptech.glide.Glide
 import com.example.localtrail.R
 import com.example.localtrail.controller.FriendsController
 import com.example.localtrail.controller.ProfilePictureController
+import com.example.localtrail.controller.activities.UserProfileActivity
 import com.example.localtrail.model.Friend
 
 class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
@@ -43,6 +45,13 @@ class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Ad
             }
         }
         
+        // Set click listener on the entire item to view user profile
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, UserProfileActivity::class.java)
+            intent.putExtra("USER_ID", friend.userId)
+            holder.itemView.context.startActivity(intent)
+        }
+        
         holder.menuImageView.setOnClickListener {
             showPopupMenu(holder.menuImageView, friend, position, holder.itemView)
         }
@@ -68,6 +77,12 @@ class FriendsAdapter(private val friends: MutableList<Friend>) : RecyclerView.Ad
         
         popupMenu.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
+                R.id.menu_view_profile -> {
+                    val intent = Intent(anchor.context, UserProfileActivity::class.java)
+                    intent.putExtra("USER_ID", friend.userId)
+                    anchor.context.startActivity(intent)
+                    true
+                }
                 R.id.menu_remove_friend -> {
                     showConfirmationDialog(friend, position, itemView)
                     true

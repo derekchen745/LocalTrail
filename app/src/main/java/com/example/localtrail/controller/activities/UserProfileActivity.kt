@@ -8,7 +8,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.localtrail.R
+import com.example.localtrail.controller.ProfilePictureController
 import com.example.localtrail.model.Trail
 import com.example.localtrail.view.profile.TrailsAdapter
 import com.example.localtrail.view.trail.TrailDetailActivity
@@ -73,6 +75,21 @@ class UserProfileActivity : AppCompatActivity() {
                     bioTextView.text = document.getString("description") ?: "No description"
                     val friends = document.get("friends") as? List<*> ?: emptyList<Any>()
                     friendsTextView.text = "${friends.size} Friends"
+                    
+                    // Load profile picture
+                    ProfilePictureController.getProfilePictureBase64(userId) { base64Image, _ ->
+                        if (base64Image != null) {
+                            Glide.with(this@UserProfileActivity)
+                                .load(base64Image)
+                                .circleCrop()
+                                .placeholder(R.drawable.placeholder_circle)
+                                .error(R.drawable.placeholder_circle)
+                                .into(avatarImageView)
+                        } else {
+                            // Use default image if no profile picture
+                            avatarImageView.setImageResource(R.drawable.placeholder_circle)
+                        }
+                    }
                 } else {
                     usernameTextView.text = "User not found"
                 }

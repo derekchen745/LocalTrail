@@ -5,12 +5,23 @@
     android:layout_height="wrap_content"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/imageViewProfile"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/placeholder_circle"
+        android:contentDescription="Profile Picture"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <LinearLayout
         android:id="@+id/layoutUserInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/imageViewProfile"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/buttonAccept">
@@ -48,7 +59,7 @@
         android:id="@+id/buttonDeny"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_close"
+        android:src="@drawable/ic_decline"
         android:contentDescription="Deny"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
