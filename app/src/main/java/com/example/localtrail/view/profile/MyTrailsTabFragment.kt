@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,7 +19,7 @@ import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.databinding.IncludeMyTrailsBinding
 import com.example.localtrail.model.Trail
 import com.example.localtrail.view.trail.TrailDetailActivity
-import com.google.android.material.chip.Chip
+import com.google.android.material.button.MaterialButton
 
 class MyTrailsTabFragment : Fragment() {
     private var _binding: IncludeMyTrailsBinding? = null
@@ -68,32 +70,39 @@ class MyTrailsTabFragment : Fragment() {
     }
 
     private fun setupTagFilters() {
-        binding.chipGroupFilters.removeAllViews() // Clear existing chips
-        availableTags.forEach { tag ->
-            val chip = createFilterChip(tag)
-            binding.chipGroupFilters.addView(chip)
+        binding.filterButton.setOnClickListener {
+            showTagFilterDialog()
         }
+        updateFilterButtonText()
     }
 
-    private fun createFilterChip(tag: String): Chip {
-        return Chip(requireContext()).apply {
-            text = tag
-            isCheckable = true
-            setChipBackgroundColorResource(R.color.purple_50)
-            setChipStrokeColorResource(R.color.purple_200)
-            chipStrokeWidth = 1f  // 1dp stroke width
-            setTextColor(ContextCompat.getColor(context, R.color.black))
-            checkedIcon = ContextCompat.getDrawable(context, R.drawable.ic_check)
-            setCheckedIconTintResource(R.color.purple_200)
-
-            setOnCheckedChangeListener { _, isChecked ->
+    private fun showTagFilterDialog() {
+        val checkedItems = availableTags.map { selectedTags.contains(it) }.toBooleanArray()
+        
+        AlertDialog.Builder(requireContext())
+            .setTitle("Filter by Tags")
+            .setMultiChoiceItems(availableTags, checkedItems) { _, which, isChecked ->
+                val tag = availableTags[which]
                 if (isChecked) {
                     selectedTags.add(tag)
                 } else {
                     selectedTags.remove(tag)
                 }
-                filterTrails()
             }
+            .setPositiveButton("Apply") { _, _ ->
+                filterTrails()
+                updateFilterButtonText()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun updateFilterButtonText() {
+        val count = selectedTags.size
+        binding.filterButton.text = when {
+            count == 0 -> "Filters"
+            count == 1 -> "1 Filter"
+            else -> "$count Filters"
         }
     }
 
