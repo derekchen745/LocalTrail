@@ -11,8 +11,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.Timestamp
 import java.util.Date
-import kotlinx.coroutines.CoroutineScope
+import com.example.localtrail.utils.SyncManager
+import com.example.localtrail.utils.NetworkManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 object TrailsController {
@@ -21,6 +24,61 @@ object TrailsController {
         db.firestoreSettings = FirebaseFirestoreSettings.Builder()
             .setPersistenceEnabled(true)
             .build()
+    }
+
+    /**
+     * Fetches trails using offline-first approach
+     * Returns local trails immediately, then syncs with remote data
+     */
+    fun fetchUserTrailsOfflineFirst(userId: String, selectedTags: List<String>? = null, onResult: (List<Trail>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val networkManager = NetworkManager.getInstance(App.context)
+                val syncManager = SyncManager.getInstance(App.context)
+                
+                // First, get local trails immediately
+                val localTrails = syncManager.getLocalTrails(userId)
+                
+                // Filter by tags if specified
+                val filteredLocalTrails = if (selectedTags.isNullOrEmpty()) {
+                    localTrails
+                } else {
+                    localTrails.filter { trail ->
+                        trail.tags?.any { tag -> selectedTags.contains(tag) } == true
+                    }
+                }
+                
+                // Return local data immediately
+                onResult(filteredLocalTrails)
+                
+                // If online, also fetch remote data to get any trails not yet downloaded
+                if (networkManager.isOnline.first()) {
+                    fetchUserTrails(userId, selectedTags) { remoteTrails ->
+                        // Combine local and remote, prioritizing local for unsynced trails
+                        val combinedTrails = mutableListOf<Trail>()
+                        val localTrailIds = localTrails.map { it.id }.toSet()
+                        
+                        // Add all local trails
+                        combinedTrails.addAll(filteredLocalTrails)
+                        
+                        // Add remote trails that aren't already local
+                        remoteTrails.forEach { remoteTrail ->
+                            if (!localTrailIds.contains(remoteTrail.id)) {
+                                combinedTrails.add(remoteTrail)
+                            }
+                        }
+                        
+                        // Return combined results
+                        onResult(combinedTrails)
+                    }
+                }
+                
+            } catch (e: Exception) {
+                Log.e("TrailsController", "Error in offline-first fetch", e)
+                // Fallback to regular remote fetch
+                fetchUserTrails(userId, selectedTags, onResult)
+            }
+        }
     }
 
     fun fetchUserTrails(userId: String, selectedTags: List<String>? = null, onResult: (List<Trail>) -> Unit) {

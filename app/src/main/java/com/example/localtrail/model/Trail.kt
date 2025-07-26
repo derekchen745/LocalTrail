@@ -28,5 +28,6 @@ data class Trail(
     var weather: String? = null,
     var tags: List<String>? = null,
     var notes: String? = null,
-    var createdAt: Date = Date()
+    var createdAt: Date = Date(),
+    var isSynced: Boolean = false
 ) : Parcelable

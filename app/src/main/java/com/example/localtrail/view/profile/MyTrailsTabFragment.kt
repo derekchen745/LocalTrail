@@ -138,7 +138,9 @@ class MyTrailsTabFragment : Fragment() {
         val user = AccountController.getCurrentUser() ?: return
         binding.progressBar.visibility = View.VISIBLE
         binding.textNoTrails.visibility = View.GONE
-        TrailsController.fetchUserTrails(user.uid) { fetchedTrails ->
+        
+        // Use offline-first approach to get both local and remote trails
+        TrailsController.fetchUserTrailsOfflineFirst(user.uid) { fetchedTrails ->
             requireActivity().runOnUiThread {
                 binding.progressBar.visibility = View.GONE
                 trails.clear()
