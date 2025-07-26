@@ -52,7 +52,7 @@
                     android:visibility="gone" />
             </LinearLayout>
 
-            <!-- Map Placeholder wrapped in CardView for rounded corners -->
+            <!-- Trail Map -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="240dp"
@@ -61,16 +61,12 @@
                 android:layout_gravity="center_horizontal"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="2dp">
-                <ImageView
-                    android:id="@+id/mapPlaceholder"
+                
+                <com.mapbox.maps.MapView
+                    android:id="@+id/trailMapView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:background="#E0E0E0"
-                    android:src="@drawable/trail"
-                    android:contentDescription="Map Placeholder"
-                    android:adjustViewBounds="true"
-                    android:cropToPadding="true" />
+                    android:layout_height="match_parent" />
+                    
             </androidx.cardview.widget.CardView>
 
             <!-- User and Date -->

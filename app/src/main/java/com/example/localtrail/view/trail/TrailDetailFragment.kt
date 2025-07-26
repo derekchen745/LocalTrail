@@ -3,6 +3,7 @@ package com.example.localtrail.view.trail
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,14 +14,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.localtrail.R
 import com.example.localtrail.controller.TrailsController
+import com.example.localtrail.utils.SyncManager
 import com.example.localtrail.model.Trail
+import com.example.localtrail.model.db.AppDatabase
 import com.example.localtrail.model.enums.TrailPrivacy
 import com.example.localtrail.databinding.FragmentTrailDetailBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.chip.Chip
 import com.google.firebase.auth.FirebaseAuth
+import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.Style
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
+import com.mapbox.maps.plugin.gestures.gestures
+import kotlinx.coroutines.launch
 
 class TrailDetailFragment : Fragment() {
     private var _binding: FragmentTrailDetailBinding? = null
@@ -79,6 +91,9 @@ class TrailDetailFragment : Fragment() {
 
         // Initialize tags display
         updateTagsDisplay()
+        
+        // Initialize trail map
+        setupTrailMap()
     }
 
     private fun bindTrail(trail: Trail) {
@@ -241,7 +256,128 @@ class TrailDetailFragment : Fragment() {
         })
     }
 
+    private fun setupTrailMap() {
+        // Enable user interaction with the map
+        binding.trailMapView.getMapboxMap().apply {
+            // Enable gestures for zooming and panning
+            binding.trailMapView.gestures.apply {
+                doubleTapToZoomInEnabled = true
+                doubleTouchToZoomOutEnabled = true
+                quickZoomEnabled = true
+                scrollEnabled = true
+                rotateEnabled = true
+                pitchEnabled = false // Keep it flat for trail viewing
+            }
+        }
+        
+        // Initialize the map
+        binding.trailMapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS) { style ->
+            // Load trail coordinates and display them
+            displayTrailPath()
+        }
+    }
+
+    private fun displayTrailPath() {
+        lifecycleScope.launch {
+            try {
+                val database = AppDatabase.getInstance(requireContext())
+                var trailLocations = database.trailLocationDao()
+                    .getTrailLocationsForTrailId(trail.id)
+                
+                Log.d("TrailDetail", "Found ${trailLocations.size} locations locally for trail ${trail.id}")
+                
+                // If no local locations, try to download from Firestore
+                if (trailLocations.isEmpty()) {
+                    try {
+                        val syncManager = SyncManager.getInstance(requireContext())
+                        trailLocations = syncManager.downloadTrailLocationsFromFirestore(trail.id)
+                        Log.d("TrailDetail", "Downloaded ${trailLocations.size} locations from Firestore")
+                    } catch (e: Exception) {
+                        Log.e("TrailDetail", "Failed to download locations from Firestore", e)
+                    }
+                }
+                
+                if (trailLocations.isNotEmpty()) {
+                    // Convert to Mapbox Points
+                    val pathPoints = trailLocations.map { location ->
+                        Point.fromLngLat(location.longitude, location.latitude)
+                    }
+                    
+                    // Create polyline annotation manager
+                    val annotationPlugin = binding.trailMapView.annotations
+                    val lineManager = annotationPlugin.createPolylineAnnotationManager()
+                    
+                    // Create and add polyline
+                    val polylineOptions = PolylineAnnotationOptions()
+                        .withPoints(pathPoints)
+                        .withLineColor("#3FB1CE")
+                        .withLineWidth(4.0)
+                    
+                    lineManager.create(polylineOptions)
+                    
+                    // Calculate bounds to fit all points with padding
+                    val latitudes = pathPoints.map { it.latitude() }
+                    val longitudes = pathPoints.map { it.longitude() }
+                    
+                    val minLat = latitudes.minOrNull() ?: 0.0
+                    val maxLat = latitudes.maxOrNull() ?: 0.0
+                    val minLng = longitudes.minOrNull() ?: 0.0
+                    val maxLng = longitudes.maxOrNull() ?: 0.0
+                    
+                    // Add padding around the bounds (10% of the trail size)
+                    val latPadding = (maxLat - minLat) * 0.1
+                    val lngPadding = (maxLng - minLng) * 0.1
+                    
+                    val centerLat = (minLat + maxLat) / 2
+                    val centerLng = (minLng + maxLng) / 2
+                    
+                    // Set camera to show the entire trail
+                    binding.trailMapView.getMapboxMap().setCamera(
+                        CameraOptions.Builder()
+                            .center(Point.fromLngLat(centerLng, centerLat))
+                            .zoom(calculateZoomLevel(minLat, maxLat, minLng, maxLng))
+                            .build()
+                    )
+                    
+                    Log.d("TrailDetail", "Trail path displayed with ${pathPoints.size} points")
+                } else {
+                    Log.w("TrailDetail", "No trail locations found for trail ${trail.id}")
+                }
+                
+            } catch (e: Exception) {
+                Log.e("TrailDetail", "Error displaying trail path", e)
+            }
+        }
+    }
+
+    private fun calculateZoomLevel(minLat: Double, maxLat: Double, minLng: Double, maxLng: Double): Double {
+        val latDiff = maxLat - minLat
+        val lngDiff = maxLng - minLng
+        val maxDiff = maxOf(latDiff, lngDiff)
+        
+        // More zoomed out levels for better trail overview
+        return when {
+            maxDiff > 0.1 -> 8.0    // Very long trails - zoomed way out
+            maxDiff > 0.05 -> 10.0  // Long trails 
+            maxDiff > 0.01 -> 12.0  // Medium trails
+            maxDiff > 0.005 -> 13.0 // Short trails
+            maxDiff > 0.001 -> 14.0 // Very short trails
+            else -> 15.0            // Tiny trails
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.trailMapView.onStart()
+    }
+
+    override fun onPause() {
+        binding.trailMapView.onStop()
+        super.onPause()
+    }
+
     override fun onDestroyView() {
+        binding.trailMapView.onDestroy()
         super.onDestroyView()
         _binding = null
     }

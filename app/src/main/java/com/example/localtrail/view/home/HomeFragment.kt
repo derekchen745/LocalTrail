@@ -71,10 +71,13 @@ class HomeFragment : Fragment() {
     }
 
     private fun centerMapOnLocation(loc: Location) {
+        // Check if binding is still valid (view not destroyed)
+        val currentBinding = _binding ?: return
+        
         val pt = Point.fromLngLat(loc.longitude, loc.latitude)
 
         // move camera
-        binding.mapView.getMapboxMap().setCamera(
+        currentBinding.mapView.getMapboxMap().setCamera(
             com.mapbox.maps.CameraOptions.Builder()
                 .center(pt)
                 .zoom(14.0)
@@ -82,7 +85,7 @@ class HomeFragment : Fragment() {
         )
 
         // draw a circle annotation
-        val mgr = binding.mapView.annotations.createCircleAnnotationManager()
+        val mgr = currentBinding.mapView.annotations.createCircleAnnotationManager()
         mgr.create(
             CircleAnnotationOptions()
                 .withPoint(pt)
@@ -97,8 +100,10 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         locationHelper.stopLocationUpdates()
-        binding.mapView.onStop()
-        binding.mapView.onDestroy()
+        _binding?.let { binding ->
+            binding.mapView.onStop()
+            binding.mapView.onDestroy()
+        }
         _binding = null
         super.onDestroyView()
     }
@@ -110,7 +115,7 @@ class HomeFragment : Fragment() {
 
     override fun onLowMemory() {
         super.onLowMemory()
-        binding.mapView.onLowMemory()
+        _binding?.mapView?.onLowMemory()
     }
 
     private fun showCreateTrailDialog() {

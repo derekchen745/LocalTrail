@@ -170,6 +170,84 @@ class SyncManager private constructor(private val context: Context) {
         }
     }
     
+    /**
+     * Downloads trail locations from Firestore and stores them locally
+     */
+    suspend fun downloadTrailLocationsFromFirestore(trailId: String): List<TrailLocation> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val result = suspendCoroutine<List<TrailLocation>> { continuation ->
+                    firestore.collection("trails")
+                        .document(trailId)
+                        .get()
+                        .addOnSuccessListener { document ->
+                            try {
+                                val locations = mutableListOf<TrailLocation>()
+                                val locationsData = document.get("locations") as? List<HashMap<String, Any>>
+                                
+                                locationsData?.forEach { locationMap ->
+                                    val latitude = (locationMap["latitude"] as? Number)?.toDouble() ?: 0.0
+                                    val longitude = (locationMap["longitude"] as? Number)?.toDouble() ?: 0.0
+                                    val timestamp = (locationMap["timestamp"] as? Number)?.toLong() ?: System.currentTimeMillis()
+                                    
+                                    locations.add(
+                                        TrailLocation(
+                                            trailId = trailId,
+                                            latitude = latitude,
+                                            longitude = longitude,
+                                            timestamp = timestamp
+                                        )
+                                    )
+                                }
+                                
+                                Log.d("SyncManager", "Downloaded ${locations.size} locations for trail: $trailId")
+                                continuation.resume(locations)
+                            } catch (e: Exception) {
+                                Log.e("SyncManager", "Error parsing trail locations", e)
+                                continuation.resume(emptyList())
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("SyncManager", "Error downloading trail locations", e)
+                            continuation.resume(emptyList())
+                        }
+                }
+                
+                // Store downloaded locations in local database
+                result.forEach { location ->
+                    try {
+                        database.trailLocationDao().insert(location)
+                    } catch (e: Exception) {
+                        // Location might already exist, that's okay
+                        Log.d("SyncManager", "Location already exists in local database")
+                    }
+                }
+                
+                result
+            } catch (e: Exception) {
+                Log.e("SyncManager", "Error in downloadTrailLocationsFromFirestore", e)
+                emptyList()
+            }
+        }
+    }
+    
+    /**
+     * Downloads all trail locations for all user's trails
+     */
+    suspend fun downloadAllTrailLocations() {
+        withContext(Dispatchers.IO) {
+            try {
+                val trails = database.trailDao().getAllTrails()
+                trails.forEach { trail ->
+                    downloadTrailLocationsFromFirestore(trail.id)
+                }
+                Log.d("SyncManager", "Downloaded locations for ${trails.size} trails")
+            } catch (e: Exception) {
+                Log.e("SyncManager", "Error downloading all trail locations", e)
+            }
+        }
+    }
+    
     suspend fun getLocalTrails(userId: String): List<Trail> {
         return try {
             database.trailDao().getTrailsByUserId(userId)
