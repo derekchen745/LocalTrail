@@ -29,7 +29,7 @@
         android:orientation="vertical"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:paddingBottom="88dp"
+        android:paddingBottom="32dp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
         android:background="@android:color/transparent">
