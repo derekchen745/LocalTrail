@@ -3,6 +3,7 @@ package com.example.localtrail.utils
 import android.graphics.*
 import android.util.Log
 import com.example.localtrail.App
+import com.example.localtrail.model.Trail
 import com.example.localtrail.model.TrailLocation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,6 +18,7 @@ object TrailThumbnailGenerator {
      * Generates a trail thumbnail using Mapbox Static Images API
      */
     suspend fun generateThumbnail(
+        trail: Trail,
         locations: List<TrailLocation>,
         width: Int = 300,
         height: Int = 160
@@ -27,7 +29,7 @@ object TrailThumbnailGenerator {
 
         return try {
             Log.d("TrailThumbnail", "Generating thumbnail for ${locations.size} locations")
-            val staticImageUrl = buildMapboxStaticUrl(locations, width, height)
+            val staticImageUrl = buildMapboxStaticUrl(trail, locations, width, height)
             Log.d("TrailThumbnail", "Static URL: $staticImageUrl")
             downloadImageFromUrl(staticImageUrl)
         } catch (e: Exception) {
@@ -37,6 +39,7 @@ object TrailThumbnailGenerator {
     }
     
     private fun buildMapboxStaticUrl(
+        trail: Trail,
         locations: List<TrailLocation>, 
         width: Int, 
         height: Int
@@ -54,7 +57,7 @@ object TrailThumbnailGenerator {
         val zoom = calculateZoomForBounds(minLat, maxLat, minLng, maxLng, width, height)
         
         // Create polyline overlay for the trail
-        val polylineOverlay = createPolylineOverlay(locations)
+        val polylineOverlay = createPolylineOverlay(trail, locations)
         
         // Add start and end markers
         val startLocation = locations.first()
@@ -70,7 +73,7 @@ object TrailThumbnailGenerator {
         return "$baseUrl/$overlays/$centerLng,$centerLat,$zoom/${width}x$height@2x?access_token=${MapboxConfig.getAccessToken(App.context)}"
     }
     
-    private fun createPolylineOverlay(locations: List<TrailLocation>): String {
+    private fun createPolylineOverlay(trail: Trail, locations: List<TrailLocation>): String {
         // Simplify the path to avoid URL length issues
         val maxPoints = 20
         val step = maxOf(1, locations.size / maxPoints)
@@ -88,12 +91,15 @@ object TrailThumbnailGenerator {
             "[${location.longitude}, ${location.latitude}]"
         }.joinToString(",")
         
+        // Get trail color based on difficulty
+        val trailColor = TrailDifficultyUtils.getTrailColor(trail)
+        
         // Create GeoJSON LineString for the trail path
         val geojson = """
         {
           "type": "Feature",
           "properties": {
-            "stroke": "#6200EE",
+            "stroke": "$trailColor",
             "stroke-width": 6,
             "stroke-opacity": 0.9
           },

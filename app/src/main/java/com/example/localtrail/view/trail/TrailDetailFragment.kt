@@ -393,10 +393,13 @@ class TrailDetailFragment : Fragment() {
                     val lineManager = annotationPlugin.createPolylineAnnotationManager()
                     val circleManager = annotationPlugin.createCircleAnnotationManager()
                     
+                    // Get trail color based on difficulty
+                    val trailColor = com.example.localtrail.utils.TrailDifficultyUtils.getTrailColor(trail)
+                    
                     // Create and add polyline
                     val polylineOptions = PolylineAnnotationOptions()
                         .withPoints(pathPoints)
-                        .withLineColor("#6200EE")
+                        .withLineColor(trailColor)
                         .withLineWidth(4.0)
                     
                     lineManager.create(polylineOptions)

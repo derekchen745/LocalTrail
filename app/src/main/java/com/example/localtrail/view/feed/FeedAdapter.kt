@@ -209,6 +209,7 @@ class FeedAdapter(
                 
                 // Generate thumbnail bitmap using Mapbox Static Images API
                 val thumbnail = TrailThumbnailGenerator.generateThumbnail(
+                    trail = trail,
                     locations = trailLocations,
                     width = 300,
                     height = 160
