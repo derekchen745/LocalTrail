@@ -1,11 +1,5 @@
 import java.util.Properties
 
-val localProperties = rootProject.file("local.properties")
-val mapboxToken: String? = if (localProperties.exists()) {
-    Properties().apply { load(localProperties.inputStream()) }
-        .getProperty("MAPBOX_ACCESS_TOKEN")
-} else null
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -26,7 +20,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders["MAPBOX_ACCESS_TOKEN"] = mapboxToken ?: error("MAPBOX_ACCESS_TOKEN not found in local.properties")
     }
 
     buildTypes {
@@ -48,6 +41,7 @@ android {
     buildFeatures {
         viewBinding = true
         dataBinding = true
+        buildConfig = true
     }
 }
 
@@ -74,6 +68,6 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.room:room-runtime:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")
-    // Image loading library
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
 }

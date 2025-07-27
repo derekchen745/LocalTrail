@@ -53,12 +53,17 @@ class MyTrailsTabFragment : Fragment() {
         setupTagFilters()
         loadTrails()
 
-        // Register for activity result
+                // Register for activity result
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val updatedTags = result.data?.getStringArrayListExtra("updated_tags")
                 val trailId = result.data?.getStringExtra("trail_id")
-                if (updatedTags != null && trailId != null) {
+                val trailDeleted = result.data?.getBooleanExtra("trail_deleted", false) ?: false
+                
+                if (trailDeleted && trailId != null) {
+                    // Remove the trail from our local list and refresh UI
+                    removeTrailFromList(trailId)
+                } else if (updatedTags != null && trailId != null) {
                     // Update the trail in our list
                     updateTrailTags(trailId, updatedTags)
                 }
@@ -108,15 +113,15 @@ class MyTrailsTabFragment : Fragment() {
 
     private fun filterTrails() {
         if (selectedTags.isEmpty()) {
-            // If no tags selected, show all trails
+            // If no tags selected, show all trails sorted by newest first
             filteredTrails.clear()
-            filteredTrails.addAll(trails)
+            filteredTrails.addAll(trails.sortedByDescending { it.createdAt })
         } else {
-            // Filter trails that have ANY of the selected tags
+            // Filter trails that have ANY of the selected tags, sorted by newest first
             filteredTrails.clear()
             filteredTrails.addAll(trails.filter { trail ->
                 trail.tags?.any { it in selectedTags } == true
-            })
+            }.sortedByDescending { it.createdAt })
         }
         trailsAdapter.updateTrails(filteredTrails)
     }
@@ -138,7 +143,9 @@ class MyTrailsTabFragment : Fragment() {
         val user = AccountController.getCurrentUser() ?: return
         binding.progressBar.visibility = View.VISIBLE
         binding.textNoTrails.visibility = View.GONE
-        TrailsController.fetchUserTrails(user.uid) { fetchedTrails ->
+        
+        // Use offline-first approach to get both local and remote trails
+        TrailsController.fetchUserTrailsOfflineFirst(user.uid) { fetchedTrails ->
             requireActivity().runOnUiThread {
                 binding.progressBar.visibility = View.GONE
                 trails.clear()
@@ -161,6 +168,27 @@ class MyTrailsTabFragment : Fragment() {
             trails[trailIndex].tags = tags
             filterTrails() // Reapply filters after updating tags
         }
+    }
+
+    private fun removeTrailFromList(trailId: String) {
+        val removed = trails.removeAll { it.id == trailId }
+        if (removed) {
+            filterTrails() // Refresh the filtered list and adapter
+            
+            // Show/hide the "no trails" message if needed
+            if (trails.isEmpty()) {
+                binding.textNoTrails.visibility = View.VISIBLE
+            } else {
+                binding.textNoTrails.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh trails when returning to this fragment
+        // This helps catch any changes that might have been missed
+        loadTrails()
     }
 
     private lateinit var activityLauncher: ActivityResultLauncher<Intent>

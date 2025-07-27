@@ -14,13 +14,38 @@
         mapbox:mapbox_cameraZoom="14"
         mapbox:mapbox_styleUri="mapbox://styles/mapbox/streets-v11" />
 
-    <!-- Big button pinned to bottom center -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnEndTrail"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    <!-- Center location button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCenterLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="End Trail"
-        android:layout_gravity="bottom|center"
-        android:layout_margin="24dp"/>
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:layout_marginTop="80dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:contentDescription="Center on my location"
+        app:backgroundTint="@color/purple_500"
+        app:tint="@android:color/white" />
+
+    <!-- Big button pinned to bottom center -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:paddingBottom="32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:background="@android:color/transparent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEndTrail"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="End Trail"
+            android:paddingEnd="16dp"
+            android:textSize="22sp" />
+    </LinearLayout>
 </FrameLayout>

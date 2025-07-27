@@ -100,13 +100,12 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/imageTrailPhoto"
+            android:id="@+id/trailThumbnailImageView"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
+            android:layout_height="120dp"
+            android:background="#F5F5F5"
             android:scaleType="centerCrop"
-            android:src="@drawable/trail"
-            android:background="#EEE"
-            android:contentDescription="Trail photo placeholder" />
+            android:contentDescription="Trail thumbnail" />
 
         <LinearLayout
             android:layout_width="match_parent"

@@ -1,5 +1,6 @@
 package com.example.localtrail.view.feed
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,12 @@ import com.example.localtrail.controller.ProfilePictureController
 import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.model.Trail
 import com.example.localtrail.controller.FriendsController
+import com.example.localtrail.model.db.AppDatabase
+import com.example.localtrail.utils.SyncManager
+import com.example.localtrail.utils.TrailThumbnailGenerator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FeedAdapter(
     private val trails: List<Trail>,
@@ -37,7 +44,7 @@ class FeedAdapter(
         val dateText: TextView = view.findViewById(R.id.textTrailDate)
         val userText: TextView = view.findViewById(R.id.textTrailUser)
         val menu: ImageView = view.findViewById(R.id.imageTrailMenu)
-        val image: ImageView = view.findViewById(R.id.imageTrailPhoto)
+        val trailThumbnail: ImageView = view.findViewById(R.id.trailThumbnailImageView)
     }
 
     class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -82,7 +89,9 @@ class FeedAdapter(
                 
                 // Format and display the creation date
                 val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())
-                holder.dateText.text = dateFormat.format(trail.createdAt)
+                val formattedDate = dateFormat.format(trail.createdAt)
+                holder.dateText.text = formattedDate
+                Log.d("FeedAdapter", "Trail '${trail.name}' created at: ${trail.createdAt}, formatted as: $formattedDate")
 
                 // Load profile picture for the trail user
                 ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
@@ -99,20 +108,8 @@ class FeedAdapter(
                     }
                 }
 
-                // Load profile picture for the trail user
-                ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
-                    if (base64Image != null) {
-                        Glide.with(holder.itemView.context)
-                            .load(base64Image)
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_account_circle_black_24dp)
-                            .error(R.drawable.ic_account_circle_black_24dp)
-                            .into(holder.avatar)
-                    } else {
-                        // Use default image if no profile picture
-                        holder.avatar.setImageResource(R.drawable.ic_account_circle_black_24dp)
-                    }
-                }
+                // Setup simple trail path drawing
+                setupTrailThumbnail(holder.trailThumbnail, trail)
 
                 // Add click listener to open trail summary
                 holder.card.setOnClickListener {
@@ -188,5 +185,55 @@ class FeedAdapter(
     override fun getItemCount(): Int = when {
         trails.isEmpty() -> 1
         else -> trails.size + 1
+    }
+
+    private fun setupTrailThumbnail(thumbnailImageView: ImageView, trail: Trail) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val database = AppDatabase.getInstance(thumbnailImageView.context)
+                var trailLocations = database.trailLocationDao()
+                    .getTrailLocationsForTrailId(trail.id)
+                
+                Log.d("FeedAdapter", "Trail ${trail.name}: Found ${trailLocations.size} locations locally")
+                
+                // If no local locations, try to download from Firestore
+                if (trailLocations.isEmpty()) {
+                    try {
+                        val syncManager = SyncManager.getInstance(thumbnailImageView.context)
+                        trailLocations = syncManager.downloadTrailLocationsFromFirestore(trail.id)
+                        Log.d("FeedAdapter", "Downloaded ${trailLocations.size} locations from Firestore for ${trail.name}")
+                    } catch (e: Exception) {
+                        Log.e("FeedAdapter", "Failed to download locations for ${trail.name}", e)
+                    }
+                }
+                
+                // Generate thumbnail bitmap using Mapbox Static Images API
+                val thumbnail = TrailThumbnailGenerator.generateThumbnail(
+                    trail = trail,
+                    locations = trailLocations,
+                    width = 300,
+                    height = 160
+                )
+                
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (thumbnail != null) {
+                        Log.d("FeedAdapter", "Trail ${trail.name}: Generated Mapbox thumbnail ${thumbnail.width}x${thumbnail.height}")
+                        thumbnailImageView.setImageBitmap(thumbnail)
+                        thumbnailImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                    } else {
+                        Log.w("FeedAdapter", "Trail ${trail.name}: Failed to generate thumbnail")
+                        // Show placeholder if no trail data
+                        thumbnailImageView.setImageResource(R.drawable.ic_location_pin)
+                        thumbnailImageView.scaleType = ImageView.ScaleType.CENTER
+                    }
+                }
+                
+            } catch (e: Exception) {
+                Log.e("FeedAdapter", "Error setting up trail thumbnail for ${trail.name}", e)
+                // Show placeholder on error
+                thumbnailImageView.setImageResource(R.drawable.ic_location_pin)
+                thumbnailImageView.scaleType = ImageView.ScaleType.CENTER
+            }
+        }
     }
 }

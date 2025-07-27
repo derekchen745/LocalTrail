@@ -34,3 +34,6 @@ google-services.json
 
 # Ignore the scripts folder and all its contents
 scripts/
+
+# Mapbox configuration (contains sensitive API keys)
+app/src/main/res/raw/mapbox_config.properties

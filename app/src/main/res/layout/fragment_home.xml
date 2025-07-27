@@ -22,8 +22,22 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <!-- Bottom-aligned button container -->
+    <!-- Center location button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnCenterLocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:layout_marginTop="80dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:contentDescription="Center on my location"
+        app:backgroundTint="@color/purple_500"
+        app:tint="@android:color/white" />
+
+    <!-- Start Trail Button Container -->
     <LinearLayout
+        android:id="@+id/startTrailContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -32,7 +46,8 @@
         android:paddingBottom="32dp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
-        android:background="@android:color/transparent">
+        android:background="@android:color/transparent"
+        android:visibility="visible">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_initiate_trail"
@@ -40,6 +55,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Start Trail"
+            android:paddingEnd="16dp"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <!-- End Trail Button Container (initially hidden) -->
+    <LinearLayout
+        android:id="@+id/endTrailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:paddingBottom="32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:background="@android:color/transparent"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEndTrail"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="End Trail"
             android:paddingEnd="16dp"
             android:textSize="22sp" />
     </LinearLayout>
