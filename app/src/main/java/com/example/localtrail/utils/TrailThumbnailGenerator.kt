@@ -22,32 +22,7 @@ object TrailThumbnailGenerator {
         height: Int = 160
     ): Bitmap? {
         if (locations.isEmpty()) {
-            Log.d("TrailThumbnail", "No locations provided, testing with sample coordinates")
-            // Create test coordinates for Waterloo, Ontario (where your trails seem to be)
-            val testLocations = listOf(
-                TrailLocation(
-                    trailId = "test",
-                    latitude = 43.4643,
-                    longitude = -80.5204,
-                    timestamp = System.currentTimeMillis()
-                ),
-                TrailLocation(
-                    trailId = "test", 
-                    latitude = 43.4653,
-                    longitude = -80.5194,
-                    timestamp = System.currentTimeMillis()
-                )
-            )
-            
-            return try {
-                Log.d("TrailThumbnail", "Generating test thumbnail with sample coordinates")
-                val staticImageUrl = buildMapboxStaticUrl(testLocations, width, height)
-                Log.d("TrailThumbnail", "Test Static URL: $staticImageUrl")
-                downloadImageFromUrl(staticImageUrl) ?: generatePlaceholderThumbnail(width, height)
-            } catch (e: Exception) {
-                Log.e("TrailThumbnail", "Error generating test thumbnail", e)
-                generatePlaceholderThumbnail(width, height)
-            }
+            return generatePlaceholderThumbnail(width, height)
         }
 
         return try {
