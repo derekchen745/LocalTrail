@@ -118,7 +118,7 @@ object TrailThumbnailGenerator {
         {
           "type": "Feature",
           "properties": {
-            "stroke": "#3FB1CE",
+            "stroke": "#6200EE",
             "stroke-width": 6,
             "stroke-opacity": 0.9
           },

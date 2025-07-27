@@ -10,6 +10,9 @@ interface TrailDao {
     @Delete
     suspend fun delete(trail: Trail)
 
+    @Query("DELETE FROM trails WHERE id = :trailId")
+    suspend fun deleteById(trailId: String)
+
     @Update
     suspend fun update(trail: Trail)
 

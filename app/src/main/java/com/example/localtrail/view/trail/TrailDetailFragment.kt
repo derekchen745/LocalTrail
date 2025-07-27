@@ -31,6 +31,7 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PolylineAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManager
+import com.mapbox.maps.plugin.annotation.generated.createCircleAnnotationManager
 import com.mapbox.maps.plugin.gestures.gestures
 import kotlinx.coroutines.launch
 
@@ -66,7 +67,7 @@ class TrailDetailFragment : Fragment() {
             // Show menu button for owner
             binding.menuButton.visibility = View.VISIBLE
             binding.menuButton.setOnClickListener {
-                showPrivacyMenu()
+                showOwnerMenu()
             }
             
             // Set click listener for tags button only if user owns the trail
@@ -76,8 +77,11 @@ class TrailDetailFragment : Fragment() {
             binding.tagsTextView.isEnabled = true
             binding.tagsTextView.alpha = 1.0f
         } else {
-            // Hide menu button for non-owners
-            binding.menuButton.visibility = View.GONE
+            // Show menu button for non-owners (save/unsave)
+            binding.menuButton.visibility = View.VISIBLE
+            binding.menuButton.setOnClickListener {
+                showNonOwnerMenu()
+            }
             
             // Disable tags button for non-owners
             binding.tagsTextView.isEnabled = false
@@ -120,13 +124,17 @@ class TrailDetailFragment : Fragment() {
             descriptionTextView?.text = trail.description
         }
         
-        // Set stats (placeholders if missing)
-        view?.findViewById<TextView>(R.id.distanceTextView)?.text = trail.distance?.let { "${it}km" } ?: "-"
+        // Set stats (formatted with proper decimal places)
+        view?.findViewById<TextView>(R.id.distanceTextView)?.text = trail.distance?.let { 
+            String.format("%.2f km", it) 
+        } ?: "-"
         view?.findViewById<TextView>(R.id.durationTextView)?.text = trail.duration ?: "-"
-        view?.findViewById<TextView>(R.id.elevationTextView)?.text = trail.elevation?.let { "${it}m" } ?: "-"
-        view?.findViewById<TextView>(R.id.speedTextView)?.text = trail.avgSpeed?.let { "${it}km/hr" } ?: "-"
-        view?.findViewById<TextView>(R.id.effortTextView)?.text = trail.effort ?: "-"
-        view?.findViewById<TextView>(R.id.weatherTextView)?.text = trail.weather ?: "-"
+        view?.findViewById<TextView>(R.id.activityTextView)?.text = getActivityFromTags() ?: "Hiking"
+        view?.findViewById<TextView>(R.id.speedTextView)?.text = trail.avgSpeed?.let { 
+            String.format("%.2f km/hr", it) 
+        } ?: "-"
+        view?.findViewById<TextView>(R.id.effortTextView)?.text = getEffortFromTags() ?: "-"
+        view?.findViewById<TextView>(R.id.weatherTextView)?.text = getWeatherFromTags() ?: "-"
         // Tags (if you want to add chips, you can do so here)
         // Notes
         view?.findViewById<TextView>(R.id.notesTextView)?.text = trail.notes ?: ""
@@ -174,13 +182,16 @@ class TrailDetailFragment : Fragment() {
             .show()
     }
 
-    private fun showPrivacyMenu() {
+    private fun showOwnerMenu() {
         val popup = PopupMenu(requireContext(), binding.menuButton)
         
         // Add privacy options
         popup.menu.add("Public")
         popup.menu.add("Friends Only")
         popup.menu.add("Private")
+        
+        // Add separator and delete option
+        popup.menu.add("Delete Trail")
         
         // Add current privacy indicator
         val currentPrivacyText = when (trail.privacy) {
@@ -200,20 +211,57 @@ class TrailDetailFragment : Fragment() {
         }
         
         popup.setOnMenuItemClickListener { menuItem ->
-            val newPrivacy = when (menuItem.title.toString().replace("✓ ", "")) {
-                "Public" -> TrailPrivacy.PUBLIC
-                "Friends Only" -> TrailPrivacy.FRIENDS_ONLY
-                "Private" -> TrailPrivacy.PRIVATE
-                else -> return@setOnMenuItemClickListener false
+            when (menuItem.title.toString()) {
+                "Delete Trail" -> {
+                    showDeleteConfirmationDialog()
+                    true
+                }
+                else -> {
+                    val newPrivacy = when (menuItem.title.toString().replace("✓ ", "")) {
+                        "Public" -> TrailPrivacy.PUBLIC
+                        "Friends Only" -> TrailPrivacy.FRIENDS_ONLY
+                        "Private" -> TrailPrivacy.PRIVATE
+                        else -> return@setOnMenuItemClickListener false
+                    }
+                    
+                    if (newPrivacy != trail.privacy) {
+                        updateTrailPrivacy(newPrivacy)
+                    }
+                    true
+                }
             }
-            
-            if (newPrivacy != trail.privacy) {
-                updateTrailPrivacy(newPrivacy)
-            }
-            true
         }
         
         popup.show()
+    }
+
+    private fun showNonOwnerMenu() {
+        // Check if trail is already saved
+        TrailsController.isTrailSavedByUser(trail.id) { isSaved ->
+            val popup = PopupMenu(requireContext(), binding.menuButton)
+            
+            if (isSaved) {
+                popup.menu.add("Unsave Trail")
+            } else {
+                popup.menu.add("Save Trail")
+            }
+            
+            popup.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.title.toString()) {
+                    "Save Trail" -> {
+                        saveTrail()
+                        true
+                    }
+                    "Unsave Trail" -> {
+                        unsaveTrail()
+                        true
+                    }
+                    else -> false
+                }
+            }
+            
+            popup.show()
+        }
     }
 
     private fun updateTrailPrivacy(newPrivacy: TrailPrivacy) {
@@ -232,6 +280,39 @@ class TrailDetailFragment : Fragment() {
         }
     }
 
+    private fun showDeleteConfirmationDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete Trail")
+            .setMessage("Are you sure you want to delete this trail? This action cannot be undone.")
+            .setPositiveButton("Delete") { _, _ ->
+                deleteTrail()
+            }
+            .setNegativeButton("Cancel", null)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .show()
+    }
+
+    private fun deleteTrail() {
+        // Show loading indicator
+        val loadingDialog = MaterialAlertDialogBuilder(requireContext())
+            .setMessage("Deleting trail...")
+            .setCancelable(false)
+            .create()
+        loadingDialog.show()
+
+        TrailsController.deleteTrail(trail.id) { success, exception ->
+            loadingDialog.dismiss()
+            
+            if (success) {
+                Toast.makeText(requireContext(), "Trail deleted successfully", Toast.LENGTH_SHORT).show()
+                // Navigate back to previous screen
+                requireActivity().onBackPressed()
+            } else {
+                Toast.makeText(requireContext(), "Failed to delete trail: ${exception?.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun updateTrailTags(selectedTags: List<String>) {
         TrailsController.updateTrailTags(trail.id, selectedTags) { success, exception ->
             if (success) {
@@ -239,6 +320,10 @@ class TrailDetailFragment : Fragment() {
                 trail.tags = selectedTags
                 // Update the UI immediately
                 updateTagsDisplay()
+                // Update effort, weather, and activity displays based on new tags
+                view?.findViewById<TextView>(R.id.activityTextView)?.text = getActivityFromTags() ?: "Hiking"
+                view?.findViewById<TextView>(R.id.effortTextView)?.text = getEffortFromTags() ?: "-"
+                view?.findViewById<TextView>(R.id.weatherTextView)?.text = getWeatherFromTags() ?: "-"
                 // Send result back to calling activity/fragment
                 setResult(selectedTags)
                 Toast.makeText(requireContext(), "Tags updated successfully", Toast.LENGTH_SHORT).show()
@@ -306,14 +391,37 @@ class TrailDetailFragment : Fragment() {
                     // Create polyline annotation manager
                     val annotationPlugin = binding.trailMapView.annotations
                     val lineManager = annotationPlugin.createPolylineAnnotationManager()
+                    val circleManager = annotationPlugin.createCircleAnnotationManager()
                     
                     // Create and add polyline
                     val polylineOptions = PolylineAnnotationOptions()
                         .withPoints(pathPoints)
-                        .withLineColor("#3FB1CE")
+                        .withLineColor("#6200EE")
                         .withLineWidth(4.0)
                     
                     lineManager.create(polylineOptions)
+                    
+                    // Add start marker (green)
+                    val startPoint = pathPoints.first()
+                    val startMarkerOptions = com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions()
+                        .withPoint(startPoint)
+                        .withCircleRadius(8.0)
+                        .withCircleColor("#4CAF50") // Green for start
+                        .withCircleStrokeColor("#FFFFFF")
+                        .withCircleStrokeWidth(2.0)
+                    circleManager.create(startMarkerOptions)
+                    
+                    // Add end marker (red) - only if there's more than one point
+                    if (pathPoints.size > 1) {
+                        val endPoint = pathPoints.last()
+                        val endMarkerOptions = com.mapbox.maps.plugin.annotation.generated.CircleAnnotationOptions()
+                            .withPoint(endPoint)
+                            .withCircleRadius(8.0)
+                            .withCircleColor("#F44336") // Red for end
+                            .withCircleStrokeColor("#FFFFFF")
+                            .withCircleStrokeWidth(2.0)
+                        circleManager.create(endMarkerOptions)
+                    }
                     
                     // Calculate bounds to fit all points with padding
                     val latitudes = pathPoints.map { it.latitude() }
@@ -369,6 +477,45 @@ class TrailDetailFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         binding.trailMapView.onStart()
+    }
+
+    private fun getEffortFromTags(): String? {
+        // Priority order: Challenging > Moderate > Easy (show highest difficulty)
+        val effortTags = listOf("Challenging", "Moderate", "Easy")
+        return trail.tags?.firstOrNull { tag -> effortTags.contains(tag) }
+    }
+
+    private fun getWeatherFromTags(): String? {
+        val weatherTags = listOf("Sunny", "Shaded")
+        return trail.tags?.firstOrNull { tag -> weatherTags.contains(tag) }
+    }
+
+    private fun getActivityFromTags(): String? {
+        // Check for activity type in tags: Running > Biking > Hiking (more specific activities first)
+        val activityTags = mapOf(
+            "Running" to "Running",
+            "Biking" to "Biking", 
+            "Hiking" to "Hiking"
+        )
+        return trail.tags?.firstOrNull { tag -> activityTags.containsKey(tag) }?.let { activityTags[it] }
+    }
+
+    private fun saveTrail() {
+        TrailsController.saveTrailToUser(trail) { success, exception ->
+            if (success) {
+                // Optionally show a confirmation message
+                // Could add a snackbar or toast here
+            }
+        }
+    }
+
+    private fun unsaveTrail() {
+        TrailsController.removeTrailFromUser(trail.id) { success, exception ->
+            if (success) {
+                // Optionally show a confirmation message
+                // Could add a snackbar or toast here
+            }
+        }
     }
 
     override fun onPause() {

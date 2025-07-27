@@ -44,6 +44,8 @@ class TrailRecordingFragment : Fragment() {
     private val pathPoints = mutableListOf<Point>()
     private val locationTimestamps = mutableListOf<Long>()
     private var startTime: Long = 0
+    private var currentLocation: Location? = null
+    private var hasInitializedLocation = false
 
     // continuous helper (from previous step)
     private lateinit var locHelper: ContinuousLocationHelper
@@ -81,22 +83,44 @@ class TrailRecordingFragment : Fragment() {
             locHelper.stopLocationUpdates()
             showSaveTrailDialog()
         }
+
+        binding.btnCenterLocation.setOnClickListener {
+            centerMapOnCurrentLocation()
+        }
     }
 
     private fun onNewLocation(loc: Location) {
+        currentLocation = loc
         val pt = Point.fromLngLat(loc.longitude, loc.latitude)
         pathPoints.add(pt)
         locationTimestamps.add(System.currentTimeMillis())
 
-        // update camera to follow
-        binding.mapView.getMapboxMap().setCamera(
-            CameraOptions.Builder()
-                .center(pt)
-                .build()
-        )
+        // Center map on first location update to avoid the zoom-out issue
+        if (!hasInitializedLocation) {
+            binding.mapView.getMapboxMap().setCamera(
+                CameraOptions.Builder()
+                    .center(pt)
+                    .zoom(16.0) // Start with a good zoom level
+                    .build()
+            )
+            hasInitializedLocation = true
+            Log.d("TrailRecording", "Initial map center at ${loc.latitude}, ${loc.longitude}")
+        }
 
-        // redraw the line
+        // Just redraw the line, don't auto-center the camera after initial setup
         refreshPolyline()
+    }
+
+    private fun centerMapOnCurrentLocation() {
+        currentLocation?.let { loc ->
+            val pt = Point.fromLngLat(loc.longitude, loc.latitude)
+            binding.mapView.getMapboxMap().setCamera(
+                CameraOptions.Builder()
+                    .center(pt)
+                    .zoom(16.0) // Slightly closer zoom for centering
+                    .build()
+            )
+        }
     }
 
     private fun refreshPolyline() {
@@ -113,7 +137,7 @@ class TrailRecordingFragment : Fragment() {
         // draw new one
         val options = PolylineAnnotationOptions()
             .withPoints(pathPoints)
-            .withLineColor("#3FB1CE")
+            .withLineColor("#6200EE")
             .withLineWidth(4.0)
         lineManager.create(options)
     }

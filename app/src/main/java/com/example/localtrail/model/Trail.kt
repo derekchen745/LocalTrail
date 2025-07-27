@@ -22,7 +22,6 @@ data class Trail(
     var username: String = "",
     var distance: Double? = null,
     var duration: String? = null,
-    var elevation: Int? = null,
     var avgSpeed: Double? = null,
     var effort: String? = null,
     var weather: String? = null,

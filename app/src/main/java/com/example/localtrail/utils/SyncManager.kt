@@ -102,7 +102,6 @@ class SyncManager private constructor(private val context: Context) {
                     "username" to trail.username,
                     "distance" to trail.distance,
                     "duration" to trail.duration,
-                    "elevation" to trail.elevation,
                     "avgSpeed" to trail.avgSpeed,
                     "effort" to trail.effort,
                     "weather" to trail.weather,
@@ -110,6 +109,8 @@ class SyncManager private constructor(private val context: Context) {
                     "notes" to trail.notes,
                     "createdAt" to trail.createdAt
                 )
+                
+                Log.d("SyncManager", "Saving trail '${trail.name}' with createdAt: ${trail.createdAt}")
                 
                 // Use suspendCoroutine to convert callback to suspend function
                 suspendCoroutine<Unit> { continuation ->
@@ -288,6 +289,27 @@ class SyncManager private constructor(private val context: Context) {
     fun onDestroy() {
         scope.cancel()
         networkManager.unregisterCallback()
+    }
+    
+    /**
+     * Deletes a trail and its locations from local database
+     */
+    suspend fun deleteTrailLocally(trailId: String): Boolean {
+        return try {
+            val database = AppDatabase.getInstance(context)
+            
+            // Delete trail locations first (due to foreign key constraints)
+            database.trailLocationDao().deleteByTrailId(trailId)
+            
+            // Delete the trail
+            database.trailDao().deleteById(trailId)
+            
+            Log.d("SyncManager", "Trail $trailId deleted locally")
+            true
+        } catch (e: Exception) {
+            Log.e("SyncManager", "Failed to delete trail locally", e)
+            false
+        }
     }
     
     companion object {

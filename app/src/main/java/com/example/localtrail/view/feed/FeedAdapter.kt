@@ -89,7 +89,9 @@ class FeedAdapter(
                 
                 // Format and display the creation date
                 val dateFormat = java.text.SimpleDateFormat("MMMM dd, yyyy", java.util.Locale.getDefault())
-                holder.dateText.text = dateFormat.format(trail.createdAt)
+                val formattedDate = dateFormat.format(trail.createdAt)
+                holder.dateText.text = formattedDate
+                Log.d("FeedAdapter", "Trail '${trail.name}' created at: ${trail.createdAt}, formatted as: $formattedDate")
 
                 // Load profile picture for the trail user
                 ProfilePictureController.getProfilePictureBase64(trail.userID) { base64Image, _ ->
@@ -227,11 +229,9 @@ class FeedAdapter(
                 
             } catch (e: Exception) {
                 Log.e("FeedAdapter", "Error setting up trail thumbnail for ${trail.name}", e)
-                // Silently handle errors to avoid disrupting feed
-                CoroutineScope(Dispatchers.Main).launch {
-                    thumbnailImageView.setImageResource(R.drawable.ic_location_pin)
-                    thumbnailImageView.scaleType = ImageView.ScaleType.CENTER
-                }
+                // Show placeholder on error
+                thumbnailImageView.setImageResource(R.drawable.ic_location_pin)
+                thumbnailImageView.scaleType = ImageView.ScaleType.CENTER
             }
         }
     }

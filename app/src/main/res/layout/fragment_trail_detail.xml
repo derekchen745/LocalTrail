@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -17,40 +18,45 @@
             android:padding="16dp">
 
             <!-- Toolbar with back button and title -->
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
                 android:paddingTop="16dp"
                 android:paddingBottom="8dp">
+                
                 <ImageButton
                     android:id="@+id/backButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_arrow_back_24"
                     android:contentDescription="Back" />
+                
                 <TextView
                     android:id="@+id/trailNameTextView"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_centerInParent="true"
                     android:text="Trail Name"
                     android:textSize="26sp"
                     android:textStyle="bold"
-                    android:gravity="center"
-                    android:paddingStart="8dp"
-                    android:paddingEnd="8dp" />
+                    android:maxLines="2"
+                    android:ellipsize="end" />
+                
                 <ImageButton
                     android:id="@+id/menuButton"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_more_vert"
                     android:contentDescription="Menu"
                     android:visibility="gone" />
-            </LinearLayout>
+                    
+            </RelativeLayout>
 
             <!-- Trail Map -->
             <androidx.cardview.widget.CardView
@@ -194,7 +200,7 @@
                     <TextView
                         android:id="@+id/distanceTextView"
                         android:text="5.2km"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -216,7 +222,7 @@
                 <TextView
                     android:id="@+id/durationTextView"
                     android:text="1h 15m"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -230,15 +236,15 @@
                     android:layout_column="0"
                     android:gravity="center_horizontal">
                     <TextView
-                        android:text="Elevation"
+                        android:text="Activity"
                         android:textStyle="bold"
                         android:textSize="16sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                     <TextView
-                        android:id="@+id/elevationTextView"
-                        android:text="120m"
-                        android:textSize="24sp"
+                        android:id="@+id/activityTextView"
+                        android:text="Hiking"
+                        android:textSize="20sp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -260,7 +266,7 @@
                 <TextView
                     android:id="@+id/speedTextView"
                     android:text="5km/hr"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -282,7 +288,7 @@
                 <TextView
                     android:id="@+id/effortTextView"
                     android:text="Moderate"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -304,7 +310,7 @@
                 <TextView
                     android:id="@+id/weatherTextView"
                     android:text="Sunny, 21°"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />

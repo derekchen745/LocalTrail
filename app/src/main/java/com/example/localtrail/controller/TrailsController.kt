@@ -155,16 +155,24 @@ object TrailsController {
                                 username = data["username"] as? String ?: "",
                                 distance = (data["distance"] as? Number)?.toDouble(),
                                 duration = data["duration"] as? String,
-                                elevation = (data["elevation"] as? Number)?.toInt(),
                                 avgSpeed = (data["avgSpeed"] as? Number)?.toDouble(),
                                 effort = data["effort"] as? String,
                                 weather = data["weather"] as? String,
                                 tags = tags,
                                 notes = data["notes"] as? String,
                                 createdAt = try {
-                                    (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate() ?: java.util.Date()
+                                    val firestoreDate = (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate()
+                                    if (firestoreDate != null) {
+                                        Log.d("TrailsController", "Trail ${data["name"]} has createdAt: $firestoreDate")
+                                        firestoreDate
+                                    } else {
+                                        Log.w("TrailsController", "Trail ${data["name"]} missing createdAt field, using old fallback date")
+                                        // Use a date from 2020 to indicate missing timestamp, rather than today's date
+                                        java.util.Date(1577836800000L) // January 1, 2020
+                                    }
                                 } catch (e: Exception) {
-                                    java.util.Date()
+                                    Log.e("TrailsController", "Error parsing createdAt for trail ${data["name"]}", e)
+                                    java.util.Date(1577836800000L) // January 1, 2020
                                 }
                             ).also { trail ->
                                 Log.d("TrailsController", "Created Trail object: id=${trail.id}, name=${trail.name}, userID=${trail.userID}")
@@ -194,7 +202,11 @@ object TrailsController {
                 }
                 
                 Log.d("TrailsController", "Final filtered trails count: ${filteredTrails.size}")
-                onResult(filteredTrails)
+                
+                // Populate missing usernames for user's own trails too
+                populateMissingUsernames(filteredTrails) { trailsWithUsernames ->
+                    onResult(trailsWithUsernames)
+                }
             }
             .addOnFailureListener { e ->
                 Log.e("TrailsController", "Error fetching user trails", e)
@@ -231,7 +243,7 @@ object TrailsController {
                                 val trail = Trail(
                                     id = doc.id,
                                     name = data["name"] as? String,
-                                    location = data["location"] as? String,
+                                    location = data["location"] as? String ?: "Unknown Location",
                                     description = data["description"] as? String,
                                     userID = data["userID"] as? String ?: "",
                                     privacy = try {
@@ -242,18 +254,29 @@ object TrailsController {
                                     username = data["username"] as? String ?: "",
                                     distance = (data["distance"] as? Number)?.toDouble(),
                                     duration = data["duration"] as? String,
-                                    elevation = (data["elevation"] as? Number)?.toInt(),
                                     avgSpeed = (data["avgSpeed"] as? Number)?.toDouble(),
                                     effort = data["effort"] as? String,
                                     weather = data["weather"] as? String,
                                     tags = (data["tags"] as? List<*>)?.mapNotNull { it as? String },
                                     notes = data["notes"] as? String,
                                     createdAt = try {
-                                        (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate() ?: java.util.Date()
+                                        val firestoreDate = (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate()
+                                        if (firestoreDate != null) {
+                                            Log.d("TrailsController", "Social trail ${data["name"]} has createdAt: $firestoreDate")
+                                            firestoreDate
+                                        } else {
+                                            Log.w("TrailsController", "Social trail ${data["name"]} missing createdAt field, using old fallback date")
+                                            // Use a date from 2020 to indicate missing timestamp
+                                            java.util.Date(1577836800000L) // January 1, 2020
+                                        }
                                     } catch (e: Exception) {
-                                        java.util.Date()
+                                        Log.e("TrailsController", "Error parsing createdAt for social trail ${data["name"]}", e)
+                                        java.util.Date(1577836800000L) // January 1, 2020
                                     }
                                 )
+                                
+                                // Log for debugging dates and sorting
+                                Log.d("TrailsController", "Fetched trail: ${trail.name}, username: '${trail.username}', location: '${trail.location}', createdAt: ${trail.createdAt}, userID: ${trail.userID}")
                                 
                                 // Filter based on privacy settings
                                 when (trail.privacy) {
@@ -270,12 +293,90 @@ object TrailsController {
                             null
                         }
                     }.filterNotNull()
-                    onResult(trails)
+                    
+                    // Populate missing usernames
+                    populateMissingUsernames(trails) { trailsWithUsernames ->
+                        onResult(trailsWithUsernames)
+                    }
                 }
                 .addOnFailureListener { e ->
                     Log.e("TrailsController", "Error fetching trails", e)
                     onResult(emptyList())
                 }
+    }
+
+    private fun populateMissingUsernames(trails: List<Trail>, onResult: (List<Trail>) -> Unit) {
+        if (trails.isEmpty()) {
+            onResult(trails)
+            return
+        }
+        
+        val trailsWithMissingUsernames = trails.filter { it.username.isBlank() }
+        if (trailsWithMissingUsernames.isEmpty()) {
+            // All trails already have usernames, just sort and return
+            val sortedTrails = trails.sortedByDescending { it.createdAt }
+            Log.d("TrailsController", "Sorted ${sortedTrails.size} trails by creation date (newest first)")
+            onResult(sortedTrails)
+            return
+        }
+        
+        Log.d("TrailsController", "Found ${trailsWithMissingUsernames.size} trails with missing usernames")
+        
+        val userIds = trailsWithMissingUsernames.map { it.userID }.distinct()
+        val usernames = mutableMapOf<String, String>()
+        var pendingRequests = userIds.size
+        
+        if (pendingRequests == 0) {
+            onResult(trails)
+            return
+        }
+        
+        // Fetch usernames for all missing userIds
+        userIds.forEach { userId ->
+            FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    val username = document.getString("username") ?: "Unknown User"
+                    usernames[userId] = username
+                    Log.d("TrailsController", "Fetched username for $userId: $username")
+                    
+                    pendingRequests--
+                    if (pendingRequests == 0) {
+                        // All usernames fetched, update trails and sort
+                        val updatedTrails = trails.map { trail ->
+                            if (trail.username.isBlank() && usernames.containsKey(trail.userID)) {
+                                trail.copy(username = usernames[trail.userID]!!)
+                            } else {
+                                trail
+                            }
+                        }.sortedByDescending { it.createdAt }
+                        
+                        Log.d("TrailsController", "Updated and sorted ${updatedTrails.size} trails by creation date (newest first)")
+                        onResult(updatedTrails)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("TrailsController", "Error fetching username for user $userId", e)
+                    usernames[userId] = "Unknown User"
+                    
+                    pendingRequests--
+                    if (pendingRequests == 0) {
+                        // All requests completed, update trails and sort
+                        val updatedTrails = trails.map { trail ->
+                            if (trail.username.isBlank() && usernames.containsKey(trail.userID)) {
+                                trail.copy(username = usernames[trail.userID]!!)
+                            } else {
+                                trail
+                            }
+                        }.sortedByDescending { it.createdAt }
+                        
+                        Log.d("TrailsController", "Updated and sorted ${updatedTrails.size} trails by creation date (newest first, with errors)")
+                        onResult(updatedTrails)
+                    }
+                }
+        }
     }
 
     fun saveTrail(trail: Trail, onResult: (Boolean, Exception?) -> Unit) {
@@ -296,7 +397,6 @@ object TrailsController {
             "username" to trail.username,
             "distance" to trail.distance,
             "duration" to trail.duration,
-            "elevation" to trail.elevation,
             "avgSpeed" to trail.avgSpeed,
             "effort" to trail.effort,
             "weather" to trail.weather,
@@ -533,7 +633,6 @@ object TrailsController {
                                             tags = data["tags"] as? List<String>,
                                             distance = data["distance"] as? Double,
                                             duration = data["duration"] as? String,
-                                            elevation = (data["elevation"] as? Number)?.toInt(),
                                             avgSpeed = data["avgSpeed"] as? Double,
                                             effort = data["effort"] as? String,
                                             weather = data["weather"] as? String,
@@ -631,5 +730,59 @@ object TrailsController {
                 Log.e("TrailsController", "Failed to fetch trails for privacy update", e)
                 onResult(0, e)
             }
+    }
+
+    /**
+     * Deletes a trail from both local database and Firestore
+     */
+    fun deleteTrail(trailId: String, onResult: (Boolean, Exception?) -> Unit) {
+        Log.d("TrailsController", "Attempting to delete trail: $trailId")
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val syncManager = SyncManager.getInstance(App.context)
+                val networkManager = NetworkManager.getInstance(App.context)
+                
+                // First delete from local database
+                val localDeleted = syncManager.deleteTrailLocally(trailId)
+                
+                if (!localDeleted) {
+                    Log.e("TrailsController", "Failed to delete trail locally")
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onResult(false, Exception("Failed to delete trail from local database"))
+                    }
+                    return@launch
+                }
+                
+                // If online, also delete from Firestore
+                if (networkManager.isOnline.value) {
+                    val firestore = FirebaseFirestore.getInstance()
+                    
+                    // Delete trail document and its locations
+                    firestore.collection("trails").document(trailId)
+                        .delete()
+                        .addOnSuccessListener {
+                            Log.d("TrailsController", "Trail deleted successfully from Firestore")
+                            onResult(true, null)
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e("TrailsController", "Failed to delete trail from Firestore", e)
+                            // Even if Firestore deletion fails, local deletion succeeded
+                            onResult(true, null) // Consider it successful since local deletion worked
+                        }
+                } else {
+                    Log.d("TrailsController", "Offline - trail deleted locally only")
+                    CoroutineScope(Dispatchers.Main).launch {
+                        onResult(true, null)
+                    }
+                }
+                
+            } catch (e: Exception) {
+                Log.e("TrailsController", "Error deleting trail", e)
+                CoroutineScope(Dispatchers.Main).launch {
+                    onResult(false, e)
+                }
+            }
+        }
     }
 }

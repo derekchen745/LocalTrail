@@ -108,15 +108,15 @@ class MyTrailsTabFragment : Fragment() {
 
     private fun filterTrails() {
         if (selectedTags.isEmpty()) {
-            // If no tags selected, show all trails
+            // If no tags selected, show all trails sorted by newest first
             filteredTrails.clear()
-            filteredTrails.addAll(trails)
+            filteredTrails.addAll(trails.sortedByDescending { it.createdAt })
         } else {
-            // Filter trails that have ANY of the selected tags
+            // Filter trails that have ANY of the selected tags, sorted by newest first
             filteredTrails.clear()
             filteredTrails.addAll(trails.filter { trail ->
                 trail.tags?.any { it in selectedTags } == true
-            })
+            }.sortedByDescending { it.createdAt })
         }
         trailsAdapter.updateTrails(filteredTrails)
     }
