@@ -1,11 +1,14 @@
 package com.example.localtrail.view.profile
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -15,6 +18,7 @@ import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.TrailsController
 import com.example.localtrail.databinding.IncludeSavedTrailsBinding
 import com.example.localtrail.model.Trail
+import com.example.localtrail.view.trail.TrailDetailActivity
 import com.google.android.material.button.MaterialButton
 
 class SavedTrailsTabFragment : Fragment() {
@@ -51,13 +55,33 @@ class SavedTrailsTabFragment : Fragment() {
         setupRecyclerView()
         setupTagFilters()
         loadSavedTrails()
+
+        // Register for activity result
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val updatedTags = result.data?.getStringArrayListExtra("updated_tags")
+                val trailId = result.data?.getStringExtra("trail_id")
+                val trailUnsaved = result.data?.getBooleanExtra("trail_unsaved", false) ?: false
+                
+                if (trailUnsaved && trailId != null) {
+                    // Remove the trail from our local list and refresh UI
+                    removeTrailFromList(trailId)
+                } else if (updatedTags != null && trailId != null) {
+                    // Update the trail in our list
+                    updateTrailTags(trailId, updatedTags)
+                }
+            }
+        }.also { launcher ->
+            // Store the launcher for use when starting the detail activity
+            this.activityLauncher = launcher
+        }
     }
 
     private fun setupRecyclerView() {
         trailsAdapter = TrailsAdapter { trail ->
-            val intent = Intent(requireContext(), com.example.localtrail.view.trail.TrailDetailActivity::class.java)
+            val intent = Intent(requireContext(), TrailDetailActivity::class.java)
             intent.putExtra("trail", trail)
-            startActivity(intent)
+            activityLauncher.launch(intent)
         }
         binding.recyclerViewTrails.apply {
             setHasFixedSize(true)
@@ -136,6 +160,37 @@ class SavedTrailsTabFragment : Fragment() {
         binding.recyclerViewTrails.visibility = if (show) View.GONE else View.VISIBLE
         binding.sortLayout.visibility = if (show) View.GONE else View.VISIBLE
     }
+
+    private fun updateTrailTags(trailId: String, tags: List<String>) {
+        val trailIndex = trails.indexOfFirst { it.id == trailId }
+        if (trailIndex != -1) {
+            trails[trailIndex].tags = tags
+            filterTrails() // Reapply filters after updating tags
+        }
+    }
+
+    private fun removeTrailFromList(trailId: String) {
+        val removed = trails.removeAll { it.id == trailId }
+        if (removed) {
+            filterTrails() // Refresh the filtered list and adapter
+            
+            // Show placeholder if no trails left
+            if (trails.isEmpty()) {
+                showPlaceholder(true)
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh trails when returning to this fragment
+        // This helps catch any changes that might have been missed
+        if (AccountController.getCurrentUser() != null) {
+            loadSavedTrails()
+        }
+    }
+
+    private lateinit var activityLauncher: ActivityResultLauncher<Intent>
 
     override fun onDestroyView() {
         super.onDestroyView()

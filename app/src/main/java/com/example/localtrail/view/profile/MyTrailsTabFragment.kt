@@ -53,12 +53,17 @@ class MyTrailsTabFragment : Fragment() {
         setupTagFilters()
         loadTrails()
 
-        // Register for activity result
+                // Register for activity result
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val updatedTags = result.data?.getStringArrayListExtra("updated_tags")
                 val trailId = result.data?.getStringExtra("trail_id")
-                if (updatedTags != null && trailId != null) {
+                val trailDeleted = result.data?.getBooleanExtra("trail_deleted", false) ?: false
+                
+                if (trailDeleted && trailId != null) {
+                    // Remove the trail from our local list and refresh UI
+                    removeTrailFromList(trailId)
+                } else if (updatedTags != null && trailId != null) {
                     // Update the trail in our list
                     updateTrailTags(trailId, updatedTags)
                 }
@@ -163,6 +168,27 @@ class MyTrailsTabFragment : Fragment() {
             trails[trailIndex].tags = tags
             filterTrails() // Reapply filters after updating tags
         }
+    }
+
+    private fun removeTrailFromList(trailId: String) {
+        val removed = trails.removeAll { it.id == trailId }
+        if (removed) {
+            filterTrails() // Refresh the filtered list and adapter
+            
+            // Show/hide the "no trails" message if needed
+            if (trails.isEmpty()) {
+                binding.textNoTrails.visibility = View.VISIBLE
+            } else {
+                binding.textNoTrails.visibility = View.GONE
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh trails when returning to this fragment
+        // This helps catch any changes that might have been missed
+        loadTrails()
     }
 
     private lateinit var activityLauncher: ActivityResultLauncher<Intent>

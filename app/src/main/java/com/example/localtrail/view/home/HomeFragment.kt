@@ -40,6 +40,8 @@ import com.mapbox.maps.plugin.annotation.generated.createPolylineAnnotationManag
 import com.mapbox.geojson.Point
 import com.example.localtrail.R
 import com.example.localtrail.utils.ContinuousLocationHelper
+import com.example.localtrail.utils.NetworkManager
+import com.example.localtrail.utils.TrailRecordingStateListener
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
@@ -57,6 +59,10 @@ class HomeFragment : Fragment() {
     private val pathPoints = mutableListOf<Point>()
     private val locationTimestamps = mutableListOf<Long>()
     private var startTime: Long = 0
+
+    private fun getRecordingStateListener(): TrailRecordingStateListener? {
+        return activity as? TrailRecordingStateListener
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -246,6 +252,9 @@ class HomeFragment : Fragment() {
         pathPoints.clear()
         locationTimestamps.clear()
         
+        // Notify activity about recording state change
+        getRecordingStateListener()?.onTrailRecordingStateChanged(true)
+        
         // Log current location info for debugging
         currentLocation?.let { loc ->
             Log.d("HomeFragment", "Starting trail recording at location: ${loc.latitude}, ${loc.longitude}")
@@ -280,6 +289,9 @@ class HomeFragment : Fragment() {
         pathPoints.clear()
         locationTimestamps.clear()
         lineManager?.deleteAll()
+        
+        // Notify activity about recording state change
+        getRecordingStateListener()?.onTrailRecordingStateChanged(false)
         
         // Switch UI back to normal mode
         binding.startTrailContainer.visibility = View.VISIBLE
@@ -424,7 +436,14 @@ class HomeFragment : Fragment() {
                 val success = syncManager.saveTrailOfflineFirst(trail, trailLocations)
                 
                 if (success) {
-                    Toast.makeText(requireContext(), "Trail saved! Will sync when online.", Toast.LENGTH_SHORT).show()
+                    // Check network status to show appropriate message
+                    val networkManager = NetworkManager.getInstance(requireContext())
+                    val message = if (networkManager.isOnline.value) {
+                        "Trail saved successfully!"
+                    } else {
+                        "Trail saved! Will sync when online."
+                    }
+                    Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
                     Log.d("HomeFragment", "Trail saved successfully to SyncManager")
                 } else {
                     Toast.makeText(requireContext(), "Error saving trail", Toast.LENGTH_SHORT).show()

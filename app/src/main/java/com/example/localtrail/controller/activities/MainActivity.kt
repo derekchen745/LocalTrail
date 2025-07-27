@@ -5,6 +5,9 @@ import android.content.pm.PackageManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -22,12 +25,17 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
+import com.example.localtrail.utils.NetworkManager
+import com.example.localtrail.utils.TrailRecordingStateListener
 
-class MainActivity : BaseAuthenticatedActivity() {
+class MainActivity : BaseAuthenticatedActivity(), TrailRecordingStateListener {
 
 private lateinit var locationCallback: LocationCallback
 private lateinit var binding: ActivityMainBinding
 private lateinit var fusedLocationClient: FusedLocationProviderClient
+private lateinit var networkManager: NetworkManager
+private var isOffline = false
+private var isRecordingTrail = false
 
 private val LOCATION_PERMISSION_REQUEST_CODE = 1001
 
@@ -39,6 +47,16 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         setContentView(binding.root)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        networkManager = NetworkManager.getInstance(this)
+
+        // Monitor network connectivity
+        lifecycleScope.launch {
+            networkManager.isOnline.collect { isConnected ->
+                isOffline = !isConnected
+                updateTabVisibility(isConnected)
+                Log.d("MainActivity", "Network status changed: ${if (isConnected) "Online" else "Offline"}")
+            }
+        }
 
         if (hasLocationPermission()) {
             getLastKnownLocation()
@@ -52,6 +70,16 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         navView.setupWithNavController(navController)
 
         navView.setOnItemSelectedListener { item ->
+            // Block navigation to other tabs when offline or recording
+            if ((isOffline || isRecordingTrail) && item.itemId != R.id.navigation_home) {
+                if (isOffline) {
+                    showOfflineDialog()
+                } else if (isRecordingTrail) {
+                    showRecordingDialog()
+                }
+                return@setOnItemSelectedListener false
+            }
+            
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
             when (item.itemId) {
                 R.id.navigation_profile -> {
@@ -77,6 +105,80 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
                 else -> false
             }
         }
+    }
+
+    private fun updateTabVisibility(isConnected: Boolean) {
+        val navView = binding.navView
+        val menu = navView.menu
+        val offlineIndicator = binding.offlineIndicator
+        val recordingIndicator = binding.recordingIndicator
+        
+        // Find all tabs except home
+        val socialTab = menu.findItem(R.id.navigation_dashboard)
+        val profileTab = menu.findItem(R.id.navigation_profile)
+        val friendsTab = menu.findItem(R.id.navigation_friends)
+        
+        // Show tabs only if connected AND not recording
+        val shouldShowTabs = isConnected && !isRecordingTrail
+        
+        if (shouldShowTabs) {
+            // Show all tabs when online and not recording, hide indicators
+            socialTab?.isVisible = true
+            profileTab?.isVisible = true
+            friendsTab?.isVisible = true
+            offlineIndicator.visibility = View.GONE
+            recordingIndicator.visibility = View.GONE
+        } else {
+            // Hide other tabs when offline or recording
+            socialTab?.isVisible = false
+            profileTab?.isVisible = false
+            friendsTab?.isVisible = false
+            
+            // Show appropriate indicator
+            if (isRecordingTrail) {
+                recordingIndicator.visibility = View.VISIBLE
+                offlineIndicator.visibility = View.GONE
+            } else if (isOffline) {
+                offlineIndicator.visibility = View.VISIBLE
+                recordingIndicator.visibility = View.GONE
+            } else {
+                offlineIndicator.visibility = View.GONE
+                recordingIndicator.visibility = View.GONE
+            }
+            
+            // Navigate to home if currently on another tab
+            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+            if (navController.currentDestination?.id != R.id.navigation_home) {
+                navController.navigate(R.id.navigation_home)
+            }
+        }
+    }
+    
+    private fun showOfflineDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("No Internet Connection")
+            .setMessage("You're currently offline. Only the Home tab is available for recording trails. Please connect to the internet to access other features.")
+            .setPositiveButton("Go to Home") { _, _ ->
+                val navController = findNavController(R.id.nav_host_fragment_activity_main)
+                navController.navigate(R.id.navigation_home)
+                binding.navView.selectedItemId = R.id.navigation_home
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+    
+    private fun showRecordingDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Trail Recording in Progress")
+            .setMessage("You're currently recording a trail. Please finish recording before accessing other features.")
+            .setPositiveButton("Continue Recording", null)
+            .show()
+    }
+    
+    override fun onTrailRecordingStateChanged(isRecording: Boolean) {
+        isRecordingTrail = isRecording
+        // Update tab visibility when recording state changes
+        updateTabVisibility(networkManager.isOnline.value)
     }
 
     private fun hasLocationPermission(): Boolean {
@@ -158,5 +260,7 @@ private val LOCATION_PERMISSION_REQUEST_CODE = 1001
         if (::locationCallback.isInitialized) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
+        // Cleanup network callback
+        networkManager.unregisterCallback()
     }
 }

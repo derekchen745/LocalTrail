@@ -305,6 +305,11 @@ class TrailDetailFragment : Fragment() {
             
             if (success) {
                 Toast.makeText(requireContext(), "Trail deleted successfully", Toast.LENGTH_SHORT).show()
+                // Set result to indicate trail was deleted
+                requireActivity().setResult(Activity.RESULT_OK, Intent().apply {
+                    putExtra("trail_deleted", true)
+                    putExtra("trail_id", trail.id)
+                })
                 // Navigate back to previous screen
                 requireActivity().onBackPressed()
             } else {
@@ -515,8 +520,16 @@ class TrailDetailFragment : Fragment() {
     private fun unsaveTrail() {
         TrailsController.removeTrailFromUser(trail.id) { success, exception ->
             if (success) {
-                // Optionally show a confirmation message
-                // Could add a snackbar or toast here
+                Toast.makeText(requireContext(), "Trail removed from your collection", Toast.LENGTH_SHORT).show()
+                // Set result to indicate trail was unsaved
+                requireActivity().setResult(Activity.RESULT_OK, Intent().apply {
+                    putExtra("trail_unsaved", true)
+                    putExtra("trail_id", trail.id)
+                })
+                // Navigate back to previous screen
+                requireActivity().onBackPressed()
+            } else {
+                Toast.makeText(requireContext(), "Failed to remove trail: ${exception?.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
