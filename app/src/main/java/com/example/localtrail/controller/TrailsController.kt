@@ -785,4 +785,66 @@ object TrailsController {
             }
         }
     }
+    
+    /**
+     * Fetches trails from a specific user with privacy filtering based on the current user's relationship
+     * @param targetUserId The user whose trails to fetch
+     * @param onResult Callback with filtered list of trails
+     */
+    fun fetchUserTrailsWithPrivacyFilter(targetUserId: String, onResult: (List<Trail>) -> Unit) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null) {
+            Log.w("TrailsController", "No current user - showing only public trails")
+            fetchPublicTrailsFromUser(targetUserId, onResult)
+            return
+        }
+        
+        if (currentUser.uid == targetUserId) {
+            // Viewing own profile - show all trails
+            fetchUserTrails(targetUserId) { trails ->
+                onResult(trails)
+            }
+            return
+        }
+        
+        // Check if current user is friends with target user
+        FriendsController.isFriend(targetUserId) { isFriend, exception ->
+            if (exception != null) {
+                Log.e("TrailsController", "Error checking friendship status", exception)
+                // If error checking friendship, default to showing only public trails
+                fetchPublicTrailsFromUser(targetUserId, onResult)
+                return@isFriend
+            }
+            
+            // Fetch trails and filter based on privacy and friendship
+            fetchUserTrails(targetUserId) { allTrails ->
+                val filteredTrails = allTrails.filter { trail ->
+                    when (trail.privacy) {
+                        TrailPrivacy.PUBLIC -> true // Always visible
+                        TrailPrivacy.FRIENDS_ONLY -> isFriend // Only visible if friends
+                        TrailPrivacy.PRIVATE -> false // Never visible to others
+                    }
+                }.sortedByDescending { it.createdAt }
+                
+                Log.d("TrailsController", "Filtered ${allTrails.size} trails to ${filteredTrails.size} for user $targetUserId (isFriend: $isFriend)")
+                onResult(filteredTrails)
+            }
+        }
+    }
+    
+    /**
+     * Fetches only public trails from a specific user
+     * @param userId The user whose public trails to fetch
+     * @param onResult Callback with list of public trails
+     */
+    private fun fetchPublicTrailsFromUser(userId: String, onResult: (List<Trail>) -> Unit) {
+        fetchUserTrails(userId) { allTrails ->
+            val publicTrails = allTrails.filter { trail ->
+                trail.privacy == TrailPrivacy.PUBLIC
+            }.sortedByDescending { it.createdAt }
+            
+            Log.d("TrailsController", "Fetched ${publicTrails.size} public trails from user $userId")
+            onResult(publicTrails)
+        }
+    }
 }

@@ -100,18 +100,9 @@ class UserProfileActivity : AppCompatActivity() {
     }
 
     private fun loadUserTrails(userId: String) {
-        val db = FirebaseFirestore.getInstance()
-        db.collection("trails")
-            .whereEqualTo("userID", userId)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                val trails = querySnapshot.documents.mapNotNull {
-                    it.toObject(com.example.localtrail.model.Trail::class.java)
-                }
-                adapter.updateTrails(trails)
-            }
-            .addOnFailureListener {
-                // Optional: show error
-            }
+        // Use privacy-filtered trail fetching
+        com.example.localtrail.controller.TrailsController.fetchUserTrailsWithPrivacyFilter(userId) { trails ->
+            adapter.updateTrails(trails)
+        }
     }
 }
