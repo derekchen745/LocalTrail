@@ -10,9 +10,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.example.localtrail.R
 import com.example.localtrail.controller.AccountController
 import com.example.localtrail.controller.FriendsController
+import com.example.localtrail.controller.ProfilePictureController
 import com.example.localtrail.databinding.FragmentAddFriendsBinding
 
 class AddFriendsFragment : Fragment() {
@@ -34,6 +36,7 @@ class AddFriendsFragment : Fragment() {
 
         setupClickListeners()
         setupUserInfo()
+        loadCurrentUserProfilePicture()
     }
 
     private fun setupClickListeners() {
@@ -78,6 +81,29 @@ class AddFriendsFragment : Fragment() {
         val currentUser = AccountController.getCurrentUser()
         val userId = currentUser?.uid ?: "Unknown User"
         binding.textViewUserId.text = userId
+    }
+
+    private fun loadCurrentUserProfilePicture() {
+        val currentUser = AccountController.getCurrentUser()
+        val userId = currentUser?.uid
+        
+        if (userId != null) {
+            ProfilePictureController.getProfilePictureBase64(userId) { base64Image, _ ->
+                activity?.runOnUiThread {
+                    if (base64Image != null) {
+                        Glide.with(this@AddFriendsFragment)
+                            .load(base64Image)
+                            .circleCrop()
+                            .placeholder(R.drawable.profile)
+                            .error(R.drawable.profile)
+                            .into(binding.imageViewProfilePlaceholder)
+                    } else {
+                        // Use default image if no profile picture
+                        binding.imageViewProfilePlaceholder.setImageResource(R.drawable.profile)
+                    }
+                }
+            }
+        }
     }
 
     override fun onDestroyView() {
